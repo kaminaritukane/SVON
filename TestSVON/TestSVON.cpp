@@ -9,6 +9,7 @@ int main()
     auto tc = new TestClass();
     auto ret = tc->Add(1, 3);
     std::cout << ret << std::endl;
+    delete tc;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
