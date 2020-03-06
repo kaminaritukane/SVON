@@ -1,1 +1,7 @@
 .vs/
+SVON/Win32/
+SVON/x64/
+TestSVON/Win32/
+TestSVON/x64/
+Win32/
+x64/
