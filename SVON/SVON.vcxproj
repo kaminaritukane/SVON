@@ -19,11 +19,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\SVONAPI.h" />
-    <ClInclude Include="Include\TestClass.h" />
+    <ClCompile Include="Private\SVONDefines.cpp" />
+    <ClCompile Include="Private\SVONVolume.cpp" />
+    <ClCompile Include="Private\TestClass.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\TestClass.cpp" />
+    <ClInclude Include="Public\libmorton\morton.h" />
+    <ClInclude Include="Public\libmorton\morton2D.h" />
+    <ClInclude Include="Public\libmorton\morton2D_LUTs.h" />
+    <ClInclude Include="Public\libmorton\morton3D.h" />
+    <ClInclude Include="Public\libmorton\morton3D_LUTs.h" />
+    <ClInclude Include="Public\libmorton\morton_BMI.h" />
+    <ClInclude Include="Public\libmorton\morton_common.h" />
+    <ClInclude Include="Public\libmorton\morton_LUT_generators.h" />
+    <ClInclude Include="Public\SVONAPI.h" />
+    <ClInclude Include="Public\SVONColor.h" />
+    <ClInclude Include="Public\SVONData.h" />
+    <ClInclude Include="Public\SVONDefines.h" />
+    <ClInclude Include="Public\SVONLeafNode.h" />
+    <ClInclude Include="Public\SVONLink.h" />
+    <ClInclude Include="Public\SVONMath.h" />
+    <ClInclude Include="Public\SVONNode.h" />
+    <ClInclude Include="Public\SVONString.h" />
+    <ClInclude Include="Public\SVONVolume.h" />
+    <ClInclude Include="Public\TestClass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Public\libmorton\LICENSE" />
+    <None Include="Public\libmorton\README.md" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -101,7 +124,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;SVON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Public</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -117,7 +140,7 @@
       <PreprocessorDefinitions>_DEBUG;SVON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,7 +158,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;SVON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Public</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,7 +178,7 @@
       <PreprocessorDefinitions>NDEBUG;SVON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

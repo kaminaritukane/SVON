@@ -5,26 +5,94 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Include">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Source">
+    <Filter Include="Private">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Public">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Public\libmorton">
+      <UniqueIdentifier>{80b31211-2c89-4a0c-8c35-05d3a9ae2bc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\TestClass.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\SVONAPI.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\TestClass.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Private\TestClass.cpp">
+      <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="Private\SVONVolume.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SVONDefines.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Public\SVONAPI.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONColor.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONDefines.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONLeafNode.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONLink.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONMath.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONNode.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONString.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONVolume.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\TestClass.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\libmorton\morton.h">
+      <Filter>Public\libmorton</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\libmorton\morton_BMI.h">
+      <Filter>Public\libmorton</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\libmorton\morton_common.h">
+      <Filter>Public\libmorton</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\libmorton\morton_LUT_generators.h">
+      <Filter>Public\libmorton</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\libmorton\morton2D.h">
+      <Filter>Public\libmorton</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\libmorton\morton2D_LUTs.h">
+      <Filter>Public\libmorton</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\libmorton\morton3D.h">
+      <Filter>Public\libmorton</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\libmorton\morton3D_LUTs.h">
+      <Filter>Public\libmorton</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONData.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Public\libmorton\LICENSE">
+      <Filter>Public\libmorton</Filter>
+    </None>
+    <None Include="Public\libmorton\README.md">
+      <Filter>Public\libmorton</Filter>
+    </None>
   </ItemGroup>
 </Project>
