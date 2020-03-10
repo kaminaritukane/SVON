@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include <chrono>
 #include "TestClass.h"
 #include "SVONWrapper.h"
 
@@ -32,8 +33,18 @@ bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, uin
 int main()
 {
     SVONWrapper* pWrapper = SVONWrapper::GetInstance();
-    auto pVol = pWrapper->CreateSVONVolume(2, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
+    auto pVol = pWrapper->CreateSVONVolume(4, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
+
+    chrono::milliseconds startMs = chrono::duration_cast<chrono::milliseconds>(
+        chrono::system_clock::now().time_since_epoch()
+        );
+
     pWrapper->SVONVolumeGenerate(pVol);
+
+    int32_t buildTime = (chrono::duration_cast<chrono::milliseconds>(
+        chrono::system_clock::now().time_since_epoch()
+        ) - startMs).count();
+
     pWrapper->ReleaseSVONVolume(pVol);
 }
 
