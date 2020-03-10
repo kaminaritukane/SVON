@@ -16,7 +16,8 @@ namespace SVON
 			return instance;
 		}
 
-		SVONVolume* CreateSVONVolume(GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
+		SVONVolume* CreateSVONVolume(int32_t aVoxelPower,
+			GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
 			OverlapBoxBlockingTestFunc boxOverlapCheckFunc);
 		void ReleaseSVONVolume(SVONVolume* vol);
 		bool SVONVolumeGenerate(SVONVolume* vol);

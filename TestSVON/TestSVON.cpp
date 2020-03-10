@@ -21,7 +21,7 @@ bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, uin
     FloatVector boxMax = pos + boxOffset;
     if (boxMax.X <= -25 || boxMin.X >= 0
         || boxMax.Y <= 25 || boxMin.Y >= 50
-        || boxMax.Z <= 0 || boxMin.Z >= 25)
+        || boxMax.Z <= 0 || boxMin.Z >= 25.25f)
     {
         return false;
     }
@@ -32,7 +32,7 @@ bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, uin
 int main()
 {
     SVONWrapper* pWrapper = SVONWrapper::GetInstance();
-    auto pVol = pWrapper->CreateSVONVolume(GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
+    auto pVol = pWrapper->CreateSVONVolume(2, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
     pWrapper->SVONVolumeGenerate(pVol);
     pWrapper->ReleaseSVONVolume(pVol);
 }

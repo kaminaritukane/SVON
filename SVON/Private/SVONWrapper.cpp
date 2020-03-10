@@ -3,10 +3,11 @@ using namespace SVON;
 
 SVONWrapper* SVONWrapper::instance = nullptr;
 
-SVONVolume* SVONWrapper::CreateSVONVolume(GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
+SVONVolume* SVONWrapper::CreateSVONVolume(int32_t aVoxelPower,
+	GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
 	OverlapBoxBlockingTestFunc boxOverlapCheckFunc)
 {
-	return new SVONVolume(getVolumBoudingBoxFunc, boxOverlapCheckFunc);
+	return new SVONVolume(aVoxelPower, getVolumBoudingBoxFunc, boxOverlapCheckFunc);
 }
 
 void SVONWrapper::ReleaseSVONVolume(SVONVolume* vol)

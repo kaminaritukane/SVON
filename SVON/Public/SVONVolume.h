@@ -26,9 +26,11 @@ namespace SVON
 	class SVONVolume
 	{
 	public:
-		SVONVolume(GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
+		SVONVolume(int32_t aVoxelPower, 
+			GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
 			OverlapBoxBlockingTestFunc boxOverlapCheckFunc)
-			: GetVolumBoudingBox(getVolumBoudingBoxFunc)
+			: voxelPower(aVoxelPower)
+			, GetVolumBoudingBox(getVolumBoudingBoxFunc)
 			, OverlapBoxBlockingTest(boxOverlapCheckFunc)
 		{
 
@@ -42,7 +44,7 @@ namespace SVON
 		int32_t voxelPower = 2;
 
 		uint32_t collisionLayers = -1;
-		float clearance = 0.f;
+		//float clearance = 0.f;
 
 		SVOGenerationStrategy generationStrategy = SVOGenerationStrategy::UseBaked;
 		uint8_t numLayers = 0;
