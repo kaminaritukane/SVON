@@ -20,14 +20,14 @@ namespace SVON
 
 		int GetSize()
 		{
-			int result = 0;
+			size_t result = 0;
 			result += leafNodes.size() * sizeof(SVONLeafNode);
 			for (size_t i = 0; i < layers.size(); ++i)
 			{
 				result += layers[i].size() * sizeof(SVONNode);
 			}
 
-			return result;
+			return static_cast<int>(result);
 		}
 	};
 }

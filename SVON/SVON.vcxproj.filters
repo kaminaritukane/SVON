@@ -33,6 +33,9 @@
     <ClCompile Include="Private\SVONColor.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="Private\SVONWrapper.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Public\SVONAPI.h">
@@ -90,6 +93,9 @@
       <Filter>Public\libmorton</Filter>
     </ClInclude>
     <ClInclude Include="Public\SVONData.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONWrapper.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>

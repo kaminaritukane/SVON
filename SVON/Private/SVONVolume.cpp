@@ -17,7 +17,10 @@ bool SVONVolume::Generate()
 	FirstPassRasterize();
 
 	data.leafNodes.clear();
-	data.leafNodes.assign(static_cast<size_t>(blockedIndices[0].size() * 8.0f * 0.25f), SVONLeafNode());
+	//>> Commented by ray
+	//auto buffSize = blockedIndices[0].size() * 8.0f * 0.25f;
+	//data.leafNodes.assign(static_cast<size_t>(buffSize), SVONLeafNode());
+	//<<
 
 	// Add layers
 	for (int i = 0; i < numLayers; ++i)
@@ -68,7 +71,7 @@ void SVONVolume::SetupVolume()
 	bool succeed = false;
 	if (GetVolumBoudingBox != nullptr)
 	{
-		succeed = GetVolumBoudingBox(origin, origin);
+		succeed = GetVolumBoudingBox(origin, extent);
 	}
 
 	if (!succeed)
@@ -86,7 +89,7 @@ bool SVONVolume::FirstPassRasterize()
 	}
 
 	// Add the first layer of blocking
-	blockedIndices.clear();
+	blockedIndices.push_back(std::set<mortoncode_t>());
 
 	int32_t numNodes = GetNodesInLayer(1);
 	for (int32_t i = 0; i < numNodes; ++i)
@@ -101,29 +104,48 @@ bool SVONVolume::FirstPassRasterize()
 		}
 	}
 
+	//>> Modified by ray. Replace thest code by following ones
+	//int layerIndex = 0;
+	//while (blockedIndices[layerIndex].size() > 1)
+	//{
+	//	// Add a new layer to structure
+	//	blockedIndices.push_back(std::set<mortoncode_t>());
+
+	//	// Add any parent morton codes to the new layer
+	//	for (const mortoncode_t code : blockedIndices[layerIndex])
+	//	{
+	//		blockedIndices[layerIndex + 1].insert(code >> 3);
+	//	}
+	//	++layerIndex;
+	//}
+	//// Following are new logic
 	int layerIndex = 0;
-	while (blockedIndices[layerIndex].size() > 1)
+	while (layerIndex < numLayers - 2)
 	{
 		// Add a new layer to structure
 		blockedIndices.push_back(std::set<mortoncode_t>());
 
 		// Add any parent morton codes to the new layer
+		int higherLayerIndex = layerIndex + 1;
 		for (const mortoncode_t code : blockedIndices[layerIndex])
 		{
-			blockedIndices[layerIndex + 1].insert(code >> 3);
+			blockedIndices[higherLayerIndex].insert(code >> 3);
 		}
+
 		++layerIndex;
 	}
+	//<< End
 
 	return true;
 }
 
 void SVONVolume::RasterizeLayer(layerindex_t aLayer)
 {
-	nodeindex_t leafIndex = 0;
 	// Layer 0 Leaf nodes are special
 	if (aLayer == 0)
 	{
+		nodeindex_t leafIndex = 0;
+
 		// Run through all our coordinates
 		int32_t numNodes = GetNodesInLayer(aLayer);
 		for (int32_t i = 0; i < numNodes; ++i)
@@ -136,7 +158,7 @@ void SVONVolume::RasterizeLayer(layerindex_t aLayer)
 				// Add a node
 				std::vector<SVONNode>& nodes = GetLayer(aLayer);
 				nodes.push_back(SVONNode());
-				index = nodes.size() - 1;
+				index = static_cast<int>(nodes.size()) - 1;
 				SVONNode& node = nodes[index];
 
 				// Set code and position
@@ -148,10 +170,7 @@ void SVONVolume::RasterizeLayer(layerindex_t aLayer)
 				//TODO: Add debug stuff
 
 				// Now check if we have any blockings, and search leaf nodes
-				FloatVector position;
-				GetNodePosition(0, i, position);// ?? just ust nodePos ??
-
-				if (IsBlocked(position, GetVoxelSize(0) * 0.5f))
+				if (IsBlocked(nodePos, GetVoxelSize(0) * 0.5f))
 				{
 					// Rasterize leaf nodes
 					FloatVector leafOrigin = nodePos - FloatVector(GetVoxelSize(aLayer) * 0.5f);
@@ -184,23 +203,26 @@ void SVONVolume::RasterizeLayer(layerindex_t aLayer)
 				// Add a node
 				std::vector<SVONNode>& nodes = GetLayer(aLayer);
 				nodes.push_back(SVONNode());
-				int32_t index = nodes.size() - 1;
+				int32_t index = static_cast<int32_t>(nodes.size()) - 1;
 				SVONNode& node = nodes[index];
 
 				// Set details
 				node.code = i;
 				nodeindex_t childIndex = 0;
-				if (GetIndexForCode(aLayer - 1, node.code << 3, childIndex))
+				int32_t childLayerIndex = aLayer - 1;
+				if (GetIndexForCode(childLayerIndex, node.code << 3, childIndex))
 				{
 					// Set parent->child links
-					node.firstChild.SetLayerIndex(aLayer - 1);
+					node.firstChild.SetLayerIndex(childLayerIndex);
 					node.firstChild.SetNodeIndex(childIndex);
 
 					// Set child->parent links, this can probably be done smarter, 
 					// as we're duplicating work here
+					int32_t childIter = 0;
 					for (int iter = 0; iter < 8; ++iter)
 					{
-						SVONLink& parent = GetLayer(node.firstChild.GetLayerIndex())[node.firstChild.GetNodeIndex() + iter].parent;
+						childIter = childIndex + iter;
+						SVONLink& parent = GetLayer(childLayerIndex)[childIter].parent;
 						parent.SetLayerIndex(aLayer);
 						parent.SetNodeIndex(index);
 					}
@@ -236,7 +258,7 @@ bool SVONVolume::GetIndexForCode(layerindex_t aLayer, mortoncode_t aCode, nodein
 	{
 		if (layer[i].code == aCode)
 		{
-			oIndex = i;
+			oIndex = static_cast<nodeindex_t>(i);
 			return true;
 		}
 	}
@@ -254,10 +276,12 @@ void SVONVolume::BuildNeighbourLinks(layerindex_t aLayer)
 	{
 		SVONNode& node = layer[i];
 		// Get our world coordinate
-		uint_fast32_t x, y, z;
-		morton3D_64_decode(node.code, x, y, z);
+		//>> Removed by ray: not needed
+		//uint_fast32_t x, y, z;
+		//morton3D_64_decode(node.code, x, y, z);
+		//<< Removed by ray
 		nodeindex_t backtrackIndex = -1;
-		nodeindex_t index = i;
+		nodeindex_t index = static_cast<nodeindex_t>(i);
 		FloatVector nodePos;
 		GetNodePosition(aLayer, node.code, nodePos);
 
@@ -319,13 +343,14 @@ bool SVONVolume::FindLinkInDirection(layerindex_t aLayer, const nodeindex_t aNod
 	bool isHigher = thisCode > node.code;
 	int32_t nodeDelta = (isHigher ? 1 : -1);
 
-	while ((aNodeIndex + nodeDelta) < static_cast<int32_t>(layer.size())
-		&& aNodeIndex + nodeDelta >= 0)
+	int32_t nodeIndex = aNodeIndex + nodeDelta;
+	while (nodeIndex < static_cast<int32_t>(layer.size())
+		&& nodeIndex >= 0)
 	{
 		// This is the node we're looking for
-		if (layer[aNodeIndex + nodeDelta].code == thisCode)
+		if (layer[nodeIndex].code == thisCode)
 		{
-			const SVONNode& thisNode = layer[aNodeIndex + nodeDelta];
+			const SVONNode& thisNode = layer[nodeIndex];
 			// This is a leaf node
 			if (aLayer == 0 && thisNode.HasChildren())
 			{
@@ -339,19 +364,20 @@ bool SVONVolume::FindLinkInDirection(layerindex_t aLayer, const nodeindex_t aNod
 
 			// Otherwise, use this link
 			oLinkToUpdate.layerIndex = aLayer;
-			assert(aNodeIndex + nodeDelta < static_cast<int32_t>(layer.size()));
-			oLinkToUpdate.nodeIndex = aNodeIndex + nodeDelta;
+			assert(nodeIndex < static_cast<int32_t>(layer.size()));
+			oLinkToUpdate.nodeIndex = nodeIndex;
 			// TODO: debug stuff
 			return true;
 		}
 		// If we've passed the code we're looking for, it's not on this layer
-		else if ((isHigher && layer[aNodeIndex + nodeDelta].code > thisCode)
-			|| (!isHigher && layer[aNodeIndex + nodeDelta].code < thisCode))
+		else if ((isHigher && layer[nodeIndex].code > thisCode)
+			|| (!isHigher && layer[nodeIndex].code < thisCode))
 		{
 			return false;
 		}
 
 		nodeDelta += (isHigher ? 1 : -1);
+		nodeIndex = aNodeIndex + nodeDelta;
 	}
 
 	// I'm not entirely sure if it's valid to reach the end? Hmmm...
@@ -373,7 +399,7 @@ bool SVONVolume::GetLinkPosition(const SVONLink& aLink, FloatVector& oPosition) 
 		oPosition += FloatVector(x * voxelSize * 0.25f,
 			y * voxelSize * 0.25f,
 			z * voxelSize * 0.25f)
-			- FloatVector(voxelSize * 0.375f);//= -voxelSize * 0.5f + voxelSize * 0.125f
+			- FloatVector(voxelSize * 0.375f);// Ray Comment: = -voxelSize * 0.5f + voxelSize * 0.125f
 		const SVONLeafNode& leafNode = GetLeafNode(node.firstChild.nodeIndex);
 		bool isBlocked = leafNode.GetNode(aLink.GetSubnodeIndex());
 		return !isBlocked;
@@ -596,7 +622,9 @@ void SVONVolume::RasterizeLeafNode(FloatVector& aOrigin, nodeindex_t aLeafIndex)
 			+ FloatVector(x * leafVoxelSize, y * leafVoxelSize, z * leafVoxelSize)
 			+ FloatVector(leafVoxelSize * 0.5f);
 
-		if (aLeafIndex > static_cast<nodeindex_t>(data.leafNodes.size()))
+		//>> Modified by ray
+		//if (aLeafIndex > static_cast<nodeindex_t>(data.leafNodes.size()))
+		if (aLeafIndex >= static_cast<nodeindex_t>(data.leafNodes.size()))
 		{
 			data.leafNodes.push_back(SVONLeafNode());
 		}

@@ -23,6 +23,7 @@
     <ClCompile Include="Private\SVONDefines.cpp" />
     <ClCompile Include="Private\SVONMath.cpp" />
     <ClCompile Include="Private\SVONVolume.cpp" />
+    <ClCompile Include="Private\SVONWrapper.cpp" />
     <ClCompile Include="Private\TestClass.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +45,7 @@
     <ClInclude Include="Public\SVONNode.h" />
     <ClInclude Include="Public\SVONString.h" />
     <ClInclude Include="Public\SVONVolume.h" />
+    <ClInclude Include="Public\SVONWrapper.h" />
     <ClInclude Include="Public\TestClass.h" />
   </ItemGroup>
   <ItemGroup>

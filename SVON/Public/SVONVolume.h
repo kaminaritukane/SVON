@@ -26,12 +26,20 @@ namespace SVON
 	class SVONVolume
 	{
 	public:
-		float debugDistance = 5000.0f;
-		bool showVoxels = false;
-		bool showLeafVoxels = false;
-		bool showMortonCodes = false;
-		bool showNeighbourLinks = false;
-		int32_t voxelPower = 3;
+		SVONVolume(GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
+			OverlapBoxBlockingTestFunc boxOverlapCheckFunc)
+			: GetVolumBoudingBox(getVolumBoudingBoxFunc)
+			, OverlapBoxBlockingTest(boxOverlapCheckFunc)
+		{
+
+		}
+
+		//float debugDistance = 5000.0f;
+		//bool showVoxels = false;
+		//bool showLeafVoxels = false;
+		//bool showMortonCodes = false;
+		//bool showNeighbourLinks = false;
+		int32_t voxelPower = 2;
 
 		uint32_t collisionLayers = -1;
 		float clearance = 0.f;
