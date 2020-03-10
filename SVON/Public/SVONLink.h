@@ -6,7 +6,7 @@
 
 namespace SVON
 {
-	struct SVON_API SVONLink
+	struct SVONLink
 	{
 		uint32_t layerIndex : 4; // 0~15
 		uint32_t nodeIndex : 22; // 0~4194303

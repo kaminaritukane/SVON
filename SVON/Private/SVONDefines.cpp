@@ -41,12 +41,12 @@ const Color SVONStatics::layerColors[] = {
 };
 
 const Color SVONStatics::linkColors[] = {
-	Color(0xFF000000), 
+	Color(0xFF000000),
 	Color(0xFF444444),
-	Color(0xFF888888), 
-	Color(0xFFBBBBBB), 
-	Color(0xFFFFFFFF), 
-	Color(0xFF999999), 
-	Color(0xFF777777), 
+	Color(0xFF888888),
+	Color(0xFFBBBBBB),
+	Color(0xFFFFFFFF),
+	Color(0xFF999999),
+	Color(0xFF777777),
 	Color(0xFF555555)
-}
+};

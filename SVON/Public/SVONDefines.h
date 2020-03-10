@@ -20,7 +20,7 @@ namespace SVON
 		pX, nX, pY, nY, pZ, nZ
 	};
 
-	class SVON_API SVONStatics
+	class SVONStatics
 	{
 	public:
 		static const IntVector dirs[];

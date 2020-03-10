@@ -5,7 +5,7 @@
 
 namespace SVON
 {
-	struct SVON_API SVONLeafNode
+	struct SVONLeafNode
 	{
 		uint_fast64_t voxelGrid = 0;
 

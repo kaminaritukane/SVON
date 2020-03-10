@@ -23,7 +23,7 @@ namespace SVON
 		float boxRadius,
 		uint32_t layers)> OverlapBoxBlockingTestFunc;
 
-	class SVON_API SVONVolume
+	class SVONVolume
 	{
 	public:
 		float debugDistance = 5000.0f;
@@ -104,12 +104,11 @@ namespace SVON
 
 		void BuildNeighbourLinks(layerindex_t aLayer);
 		bool FindLinkInDirection(layerindex_t aLayer, const nodeindex_t aNodeIndex,
-			uint8_t aDir, SVONLink& aLinkToUpdate, FloatVector& aStartPosForDebug);
+			uint8_t aDir, SVONLink& oLinkToUpdate, FloatVector& aStartPosForDebug);
 		void RasterizeLeafNode(FloatVector& aOrigin, nodeindex_t aLeafIndex);
-		bool SetNeighbour(const layerindex_t aLayer, const nodeindex_t aArrayIndex, const dir aDirection);
 
+		// Check for blocking...using this cached set for each layer for now for fast lookups
 		bool IsAnyMemberBlocked(layerindex_t aLayer, mortoncode_t aCode);
 		bool IsBlocked(const FloatVector& aPositon, const float aSize) const;
-		bool IsInDebugRange(const FloatVector& aPosition) const;
 	};
 }

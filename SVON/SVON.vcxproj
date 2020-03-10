@@ -19,7 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Private\SVONColor.cpp" />
     <ClCompile Include="Private\SVONDefines.cpp" />
+    <ClCompile Include="Private\SVONMath.cpp" />
     <ClCompile Include="Private\SVONVolume.cpp" />
     <ClCompile Include="Private\TestClass.cpp" />
   </ItemGroup>

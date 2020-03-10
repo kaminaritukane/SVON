@@ -27,6 +27,12 @@
     <ClCompile Include="Private\SVONDefines.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="Private\SVONMath.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SVONColor.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Public\SVONAPI.h">

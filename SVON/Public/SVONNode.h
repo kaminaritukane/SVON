@@ -5,7 +5,7 @@
 
 namespace SVON
 {
-	struct SVON_API SVONNode
+	struct SVONNode
 	{
 		mortoncode_t code = 0;
 

@@ -27,7 +27,7 @@ namespace SVON
 	/**
 	 * Structure for float vectors in 3-d space.
 	 */
-	struct SVON_API FloatVector
+	struct FloatVector
 	{
 	public:
 		float X = 0.0f;
@@ -118,7 +118,7 @@ namespace SVON
 		}
 	};
 
-	struct SVON_API FloatQuaternion
+	struct FloatQuaternion
 	{
 	public:
 		float X = 0.0f;
@@ -139,5 +139,4 @@ namespace SVON
 			, W(InW)
 		{}
 	};
-	const FloatQuaternion FloatQuaternion::Indentity(0, 0, 0, 1);
 }
