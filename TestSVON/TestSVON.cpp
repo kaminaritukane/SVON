@@ -41,7 +41,7 @@ int main()
 
     pWrapper->SVONVolumeGenerate(pVol);
 
-    int32_t buildTime = (chrono::duration_cast<chrono::milliseconds>(
+    auto buildTime = (chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()
         ) - startMs).count();
 

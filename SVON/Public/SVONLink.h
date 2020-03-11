@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "SVONAPI.h"
 #include "SVONString.h"
 
 namespace SVON
@@ -38,6 +37,18 @@ namespace SVON
 
 		bool operator==(const SVONLink& aOther) const {
 			return memcmp(this, &aOther, sizeof(SVONLink)) == 0;
+		}
+
+		bool operator!=(const SVONLink& aOther) const {
+			return memcmp(this, &aOther, sizeof(SVONLink)) != 0;
+		}
+
+		bool operator<(const SVONLink& aOther) const {
+			return memcmp(this, &aOther, sizeof(SVONLink)) < 0;
+		}
+
+		bool operator>(const SVONLink& aOther) const {
+			return memcmp(this, &aOther, sizeof(SVONLink)) > 0;
 		}
 
 		static SVONLink GetInvalidLink() { return SVONLink(15, 0, 0); }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "SVONAPI.h"
 #include "SVONMath.h"
 #include "SVONColor.h"
 

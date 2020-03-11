@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "SVONAPI.h"
+#include <math.h>
 
 namespace SVON
 {
@@ -48,6 +48,11 @@ namespace SVON
 			, Y(InF)
 			, Z(InF)
 		{}
+
+		__forceinline float Size() const
+		{
+			return sqrtf(static_cast<float>(X * X + Y * Y + Z * Z));
+		}
 
 		__forceinline FloatVector operator+(const FloatVector& V) const
 		{

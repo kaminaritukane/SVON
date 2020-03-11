@@ -5,7 +5,6 @@
 #include <functional>
 #include "SVONDefines.h"
 #include "SVONData.h"
-#include "SVONMath.h"
 
 namespace SVON
 {

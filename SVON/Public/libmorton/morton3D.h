@@ -162,7 +162,7 @@ inline coord morton3D_DecodeCoord_LUT256(const morton m, const uint_fast8_t *LUT
 	morton a = 0;
 	unsigned int loops = (sizeof(morton) <= 4) ? 4 : 7; // ceil for 32bit, floor for 64bit
 	for (unsigned int i = 0; i < loops; ++i){
-		a |= (LUT[(m >> ((i * 9) + startshift)) & NINEBITMASK] << (3 * i));
+		a |= ( static_cast<unsigned int>(LUT[(m >> ((i * 9) + startshift)) & NINEBITMASK]) << (3 * i));
 	}
 	return static_cast<coord>(a);
 }

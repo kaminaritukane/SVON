@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SVONVolume.h"
+#include "SVONAPI.h"
 
 namespace SVON
 {

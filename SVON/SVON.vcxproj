@@ -22,6 +22,8 @@
     <ClCompile Include="Private\SVONColor.cpp" />
     <ClCompile Include="Private\SVONDefines.cpp" />
     <ClCompile Include="Private\SVONMath.cpp" />
+    <ClCompile Include="Private\SVONNavigationPath.cpp" />
+    <ClCompile Include="Private\SVONPathFinder.cpp" />
     <ClCompile Include="Private\SVONVolume.cpp" />
     <ClCompile Include="Private\SVONWrapper.cpp" />
     <ClCompile Include="Private\TestClass.cpp" />
@@ -42,7 +44,9 @@
     <ClInclude Include="Public\SVONLeafNode.h" />
     <ClInclude Include="Public\SVONLink.h" />
     <ClInclude Include="Public\SVONMath.h" />
+    <ClInclude Include="Public\SVONNavigationPath.h" />
     <ClInclude Include="Public\SVONNode.h" />
+    <ClInclude Include="Public\SVONPathFinder.h" />
     <ClInclude Include="Public\SVONString.h" />
     <ClInclude Include="Public\SVONVolume.h" />
     <ClInclude Include="Public\SVONWrapper.h" />

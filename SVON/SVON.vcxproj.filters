@@ -36,6 +36,12 @@
     <ClCompile Include="Private\SVONWrapper.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="Private\SVONPathFinder.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SVONNavigationPath.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Public\SVONAPI.h">
@@ -96,6 +102,12 @@
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\SVONWrapper.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONPathFinder.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SVONNavigationPath.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>

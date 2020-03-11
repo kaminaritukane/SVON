@@ -452,8 +452,8 @@ void SVONVolume::GetLeafNeighbours(const SVONLink& aLink,
 	{
 		// Need to switch to singed ints
 		int32_t sX = x + SVONStatics::dirs[i].X;
-		int32_t sY = x + SVONStatics::dirs[i].Y;
-		int32_t sZ = x + SVONStatics::dirs[i].Z;
+		int32_t sY = y + SVONStatics::dirs[i].Y;
+		int32_t sZ = z + SVONStatics::dirs[i].Z;
 
 		// If the neighbour is in bounds of this leaf node
 		if (sX >= 0 && sX < 4 && sY >= 0 && sY < 4 && sZ >= 0 && sZ < 4)
