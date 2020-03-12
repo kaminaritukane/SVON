@@ -1,4 +1,6 @@
-#include "..\Public\SVONWrapper.h"
+#include "SVONWrapper.h"
+#include "SVONPathFinder.h"
+
 using namespace SVON;
 
 SVONWrapper* SVONWrapper::instance = nullptr;
@@ -21,6 +23,24 @@ bool SVONWrapper::SVONVolumeGenerate(SVONVolume* vol)
 	if (vol != nullptr)
 	{
 		ret = vol->Generate();
+	}
+	return ret;
+}
+
+bool SVONWrapper::SVONFindPath(SVONVolume* vol,
+	const FloatVector& startPos,
+	const FloatVector& targetPos, 
+	SVONNavigationPath& oPath)
+{
+	bool ret = false;
+	if (vol != nullptr)
+	{
+		auto volume = *vol;
+		SVONPathFinder pathFinder(volume, SVONPathFinderSettings());
+
+		//volume.GetLeafNeighbours
+
+		//bool ret = pathFinder.FindPath()
 	}
 	return ret;
 }

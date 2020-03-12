@@ -149,7 +149,7 @@ inline coord morton2D_DecodeCoord_LUT256(const morton m, const uint_fast8_t *LUT
 	morton a = 0;
 	unsigned int loops = sizeof(morton);
 	for (unsigned int i = 0; i < loops; ++i) {
-		a |= (static_cast<unsigned int>(LUT[(m >> ((i * 8) + startshift)) & EIGHTBITMASK]) << (4 * i));
+		a |= (static_cast<unsigned long long>(LUT[(m >> ((i * 8) + startshift)) & EIGHTBITMASK]) << (4 * i));
 	}
 	return static_cast<coord>(a);
 }

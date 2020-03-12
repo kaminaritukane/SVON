@@ -61,7 +61,21 @@ float SVONVolume::GetVoxelSize(layerindex_t aLayer) const
 	return (extent.X / powf(2, static_cast<float>(voxelPower))) * (powf(2.0f, static_cast<float>(aLayer + 1)));
 }
 
-bool SVONVolume::IsReadyForNavigation()
+bool SVONVolume::EncomppassesPoint(const FloatVector& aPositon) const
+{
+	auto boxOffset = FloatVector(extent);
+	FloatVector boxMin = origin - boxOffset;
+	FloatVector boxMax = origin + boxOffset;
+
+	return (aPositon.X >= boxMin.X 
+		&& aPositon.Y >= boxMin.Y 
+		&& aPositon.Z >= boxMin.Z
+		&& aPositon.X <= boxMax.X
+		&& aPositon.Y <= boxMax.Y
+		&& aPositon.Z <= boxMax.Z );
+}
+
+bool SVONVolume::IsReadyForNavigation() const
 {
 	return isReadyFOrNavigation;
 }

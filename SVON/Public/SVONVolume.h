@@ -66,7 +66,8 @@ namespace SVON
 		const std::vector<SVONNode>& GetLayer(layerindex_t aLayer) const;
 		float GetVoxelSize(layerindex_t aLayer) const;
 
-		bool IsReadyForNavigation();
+		bool EncomppassesPoint(const FloatVector& aPositon) const;
+		bool IsReadyForNavigation() const;
 
 		// Gets the position of a given link. Returns true if the link is open, false if blocked
 		bool GetLinkPosition(const SVONLink& aLink, FloatVector& oPosition) const;

@@ -4,7 +4,9 @@
 
 using namespace SVON;
 
-int SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget, const FloatVector& aStartPos, const FloatVector& aTargetPos, SVONNavigationPath& oPath)
+bool SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget,
+	const FloatVector& aStartPos, const FloatVector& aTargetPos, 
+	SVONNavigationPath& oPath)
 {
 	openList.clear();
 	closedList.clear();
@@ -51,7 +53,7 @@ int SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget, co
 		if (current == goal)
 		{
 			BuildPath(cameFrom, current, aStartPos, aTargetPos, oPath);
-			return 1;
+			return true;
 		}
 
 		const SVONNode& currentNode = volume.GetNode(current);
@@ -74,7 +76,7 @@ int SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget, co
 		++numInterations;
 	}
 
-	return 0;//Failed
+	return false;
 }
 
 float SVONPathFinder::HeuristicScore(const SVONLink& aStart, const SVONLink& aTarget)
@@ -225,7 +227,7 @@ void SVONPathFinder::BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 		points.push_back(SVONPathPoint(aStartPos, start.GetLayerIndex()));
 	}
 
-	for (auto i = points.size() - 1; i >= 0; --i)
+	for (int i = (int)points.size() - 1; i >= 0; --i)
 	{
 		oPath.AddPoint(points[i]);
 	}

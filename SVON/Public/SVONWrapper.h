@@ -5,6 +5,8 @@
 
 namespace SVON
 {
+	struct SVONNavigationPath;
+
 	class SVON_API SVONWrapper
 	{
 	public:
@@ -20,8 +22,15 @@ namespace SVON
 		SVONVolume* CreateSVONVolume(int32_t aVoxelPower,
 			GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
 			OverlapBoxBlockingTestFunc boxOverlapCheckFunc);
+
 		void ReleaseSVONVolume(SVONVolume* vol);
+
 		bool SVONVolumeGenerate(SVONVolume* vol);
+
+		bool SVONFindPath(SVONVolume* vol,
+			const FloatVector& startPos,
+			const FloatVector& targetPos,
+			SVONNavigationPath& oPath);
 
 	private:
 		static SVONWrapper* instance;
