@@ -32,14 +32,13 @@ bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, uin
 
 int main()
 {
-    SVONWrapper* pWrapper = SVONWrapper::GetInstance();
-    auto pVol = pWrapper->CreateSVONVolume(2, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
+    auto pVol = CreateSVONVolume(2, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
 
     chrono::milliseconds startMs = chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()
         );
 
-    pWrapper->SVONVolumeGenerate(pVol);
+    SVONVolumeGenerate(pVol);
 
     auto buildTime = (chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()
@@ -52,14 +51,14 @@ int main()
 
     FloatVector startPos(-30, 30, 10);
     FloatVector targetPos(30, 30, 10);
-    SVONNavigationPath navPath;
-    pWrapper->SVONFindPath(pVol, startPos, targetPos, navPath);
+    SVON::SVONNavigationPath navPath;
+    SVONFindPath(pVol, startPos, targetPos, navPath);
 
     buildTime = (chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()
         ) - startMs).count();
 
-    pWrapper->ReleaseSVONVolume(pVol);
+    ReleaseSVONVolume(pVol);
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

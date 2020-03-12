@@ -15,12 +15,10 @@ namespace SVON
 	};
 
 	// callback funtions
-	typedef std::function<bool(FloatVector& origin, 
-		FloatVector& extent)> GetVolumBoudingBoxFunc;
+	typedef bool (*GetVolumBoudingBoxFunc)(FloatVector& origin, FloatVector& extent);
 
-	typedef std::function<bool(const FloatVector& pos, 
-		float boxRadius,
-		uint32_t layers)> OverlapBoxBlockingTestFunc;
+	typedef bool (*OverlapBoxBlockingTestFunc)(const FloatVector& pos, 
+		float boxRadius, uint32_t layers);
 
 	class SVONVolume
 	{

@@ -2,23 +2,20 @@
 #include "SVONPathFinder.h"
 #include "SVONMediator.h"
 
-using namespace SVON;
-
-SVONWrapper* SVONWrapper::instance = nullptr;
-
-SVONVolume* SVONWrapper::CreateSVONVolume(int32_t aVoxelPower,
-	GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
+SVONVolume* CreateSVONVolume(int32_t aVoxelPower,
+	GetVolumBoudingBoxFunc getVolumBoudingBoxFunc, 
 	OverlapBoxBlockingTestFunc boxOverlapCheckFunc)
 {
 	return new SVONVolume(aVoxelPower, getVolumBoudingBoxFunc, boxOverlapCheckFunc);
 }
 
-void SVONWrapper::ReleaseSVONVolume(SVONVolume* vol)
+
+void ReleaseSVONVolume(SVONVolume* vol)
 {
 	delete vol;
 }
 
-bool SVONWrapper::SVONVolumeGenerate(SVONVolume* vol)
+bool SVONVolumeGenerate(SVONVolume* vol)
 {
 	bool ret = false;
 	if (vol != nullptr)
@@ -28,10 +25,10 @@ bool SVONWrapper::SVONVolumeGenerate(SVONVolume* vol)
 	return ret;
 }
 
-bool SVONWrapper::SVONFindPath(SVONVolume* vol,
+bool SVONFindPath(SVONVolume* vol,
 	const FloatVector& startPos,
 	const FloatVector& targetPos, 
-	SVONNavigationPath& oPath)
+	SVON::SVONNavigationPath& oPath)
 {
 	bool ret = false;
 	if (vol != nullptr)
@@ -61,3 +58,4 @@ bool SVONWrapper::SVONFindPath(SVONVolume* vol,
 
 	return ret;
 }
+

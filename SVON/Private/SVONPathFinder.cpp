@@ -53,6 +53,7 @@ bool SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget,
 		if (current == goal)
 		{
 			BuildPath(cameFrom, current, aStartPos, aTargetPos, oPath);
+			oPath.SetIsReady(true);
 			return true;
 		}
 

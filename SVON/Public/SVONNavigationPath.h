@@ -31,19 +31,14 @@ namespace SVON
 
 	struct SVONNavigationPath
 	{
-	public:
-		void AddPoint(const SVONPathPoint& aPoint);
-		void ResetForRepath();
+		bool isReady = false;
+		std::vector<SVONPathPoint> points;
 
-		const std::vector<SVONPathPoint>& GetPathPoints()const {
-			return points;
-		}
+		void AddPoint(const SVONPathPoint& aPoint);
 
 		bool IsReady() const { return isReady; }
 		void SetIsReady(bool aIsReady) { isReady = aIsReady; }
 
-	protected:
-		bool isReady;
-		std::vector<SVONPathPoint> points;
+		
 	};
 }

@@ -4,36 +4,22 @@
 #include "SVONVolume.h"
 #include "SVONNavigationPath.h"
 
-namespace SVON
+using namespace SVON;
+
+extern "C"
 {
 	struct SVONNavigationPath;
 
-	class SVON_API SVONWrapper
-	{
-	public:
-		static SVONWrapper* GetInstance()
-		{
-			if (instance == nullptr)
-			{
-				instance = new SVONWrapper();
-			}
-			return instance;
-		}
+	SVON_API SVONVolume* CreateSVONVolume(int32_t aVoxelPower,
+		GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
+		OverlapBoxBlockingTestFunc boxOverlapCheckFunc);
 
-		SVONVolume* CreateSVONVolume(int32_t aVoxelPower,
-			GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
-			OverlapBoxBlockingTestFunc boxOverlapCheckFunc);
+	SVON_API void ReleaseSVONVolume(SVONVolume* vol);
 
-		void ReleaseSVONVolume(SVONVolume* vol);
+	SVON_API bool SVONVolumeGenerate(SVONVolume* vol);
 
-		bool SVONVolumeGenerate(SVONVolume* vol);
-
-		bool SVONFindPath(SVONVolume* vol,
-			const FloatVector& startPos,
-			const FloatVector& targetPos,
-			SVONNavigationPath& oPath);
-
-	private:
-		static SVONWrapper* instance;
-	};
+	SVON_API bool SVONFindPath(SVONVolume* vol,
+		const FloatVector& startPos,
+		const FloatVector& targetPos,
+		SVON::SVONNavigationPath& oPath);
 }
