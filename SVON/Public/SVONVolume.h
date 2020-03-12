@@ -40,7 +40,7 @@ namespace SVON
 		//bool showLeafVoxels = false;
 		//bool showMortonCodes = false;
 		//bool showNeighbourLinks = false;
-		int32_t voxelPower = 2;
+		int32_t voxelPower = 3;
 
 		uint32_t collisionLayers = -1;
 		//float clearance = 0.f;

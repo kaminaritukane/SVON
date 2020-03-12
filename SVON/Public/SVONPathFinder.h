@@ -78,5 +78,7 @@ namespace SVON
 		void BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 			const FloatVector& aStartPos, const FloatVector& aTargetPos,
 			SVONNavigationPath& oPath);
+
+		void AddPathPoint(std::vector<SVONPathPoint>& points, SVONLink aCurrent);
 	};
 }

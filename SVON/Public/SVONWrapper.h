@@ -1,7 +1,8 @@
 #pragma once
 
-#include "SVONVolume.h"
 #include "SVONAPI.h"
+#include "SVONVolume.h"
+#include "SVONNavigationPath.h"
 
 namespace SVON
 {

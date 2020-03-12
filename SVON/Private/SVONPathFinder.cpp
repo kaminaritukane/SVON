@@ -178,36 +178,20 @@ void SVONPathFinder::BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 	const FloatVector& aStartPos, const FloatVector& aTargetPos,
 	SVONNavigationPath& oPath)
 {
-	SVONPathPoint pos;
 	std::vector<SVONPathPoint> points;
+
+	//>> Logic modified by Ray: add position of the voxel center that is closest to target position
+	AddPathPoint(points, aCurrent);// the positon of first point will be changed to TargetPos later
+	//<< Logic modified by Ray
 
 	LinksMap::const_iterator cit = aCameFrom.find(aCurrent);
 	while (cit != aCameFrom.cend()
 		&& cit->second != aCurrent)
 	{
 		aCurrent = cit->second;
+		AddPathPoint(points, aCurrent);		
 
-		volume.GetLinkPosition(aCurrent, pos.position);
-		points.push_back(pos);
-		auto pointIndex = points.size() - 1;
-
-		const SVONNode& node = volume.GetNode(aCurrent);
-		//This is rank, I really should sort the layers out
-		if (aCurrent.GetLayerIndex() == 0)
-		{
-			if (!node.HasChildren())
-			{
-				points[pointIndex].layer = 1;
-			}
-			else
-			{
-				points[pointIndex].layer = 0;
-			}
-		}
-		else
-		{
-			points[pointIndex].layer = aCurrent.GetLayerIndex() + 1;
-		}
+		cit = aCameFrom.find(aCurrent);
 	}
 
 	auto nPoints = points.size();
@@ -218,10 +202,13 @@ void SVONPathFinder::BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 	}
 	else // If start and end are in the same voxel, just use the start and target positions
 	{
-		if (nPoints == 0)
-		{
-			points.push_back(SVONPathPoint());
-		}
+		// nPoints == 1
+		//>> Logic modified by Ray: aleady added at least one position, do not need this anymore
+		//if (nPoints == 0)
+		//{
+		//	points.push_back(SVONPathPoint());
+		//}
+		//<< Logic modified by Ray
 
 		points[0].position = aTargetPos;
 		points.push_back(SVONPathPoint(aStartPos, start.GetLayerIndex()));
@@ -231,4 +218,31 @@ void SVONPathFinder::BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 	{
 		oPath.AddPoint(points[i]);
 	}
+}
+
+void SVONPathFinder::AddPathPoint(std::vector<SVONPathPoint>& points, SVONLink aCurrent)
+{
+	SVONPathPoint pos;
+
+	volume.GetLinkPosition(aCurrent, pos.position);
+
+	const SVONNode& node = volume.GetNode(aCurrent);
+	//This is rank, I really should sort the layers out
+	if (aCurrent.GetLayerIndex() == 0)
+	{
+		if (!node.HasChildren())
+		{
+			pos.layer = 1;
+		}
+		else
+		{
+			pos.layer = 0;
+		}
+	}
+	else
+	{
+		pos.layer = aCurrent.GetLayerIndex() + 1;
+	}
+
+	points.push_back(pos);
 }

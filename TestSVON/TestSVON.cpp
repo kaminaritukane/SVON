@@ -22,7 +22,7 @@ bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, uin
     FloatVector boxMax = pos + boxOffset;
     if (boxMax.X <= -25 || boxMin.X >= 0
         || boxMax.Y <= 25 || boxMin.Y >= 50
-        || boxMax.Z <= 0 || boxMin.Z >= 25.25f)
+        || boxMax.Z <= 0 || boxMin.Z >= 25.0f)
     {
         return false;
     }
@@ -33,7 +33,7 @@ bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, uin
 int main()
 {
     SVONWrapper* pWrapper = SVONWrapper::GetInstance();
-    auto pVol = pWrapper->CreateSVONVolume(4, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
+    auto pVol = pWrapper->CreateSVONVolume(2, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
 
     chrono::milliseconds startMs = chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()
@@ -42,6 +42,20 @@ int main()
     pWrapper->SVONVolumeGenerate(pVol);
 
     auto buildTime = (chrono::duration_cast<chrono::milliseconds>(
+        chrono::system_clock::now().time_since_epoch()
+        ) - startMs).count();
+
+
+    startMs = chrono::duration_cast<chrono::milliseconds>(
+        chrono::system_clock::now().time_since_epoch()
+        );
+
+    FloatVector startPos(-30, 30, 10);
+    FloatVector targetPos(30, 30, 10);
+    SVONNavigationPath navPath;
+    pWrapper->SVONFindPath(pVol, startPos, targetPos, navPath);
+
+    buildTime = (chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()
         ) - startMs).count();
 

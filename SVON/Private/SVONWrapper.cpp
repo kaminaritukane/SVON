@@ -1,5 +1,6 @@
 #include "SVONWrapper.h"
 #include "SVONPathFinder.h"
+#include "SVONMediator.h"
 
 using namespace SVON;
 
@@ -36,11 +37,27 @@ bool SVONWrapper::SVONFindPath(SVONVolume* vol,
 	if (vol != nullptr)
 	{
 		auto volume = *vol;
-		SVONPathFinder pathFinder(volume, SVONPathFinderSettings());
 
-		//volume.GetLeafNeighbours
+		SVONLink startNavLink;
+		if (!SVONMediator::GetLinkFromPosition(startPos, volume, startNavLink))
+		{
+			// Path finder failed to find start nav link. 
+			// Is your gameobject blocking the layer you've selected to generate the nav data with?
+			return false;
+		}
 
-		//bool ret = pathFinder.FindPath()
+		SVONLink targetNavLink;
+		if (!SVONMediator::GetLinkFromPosition(targetPos, volume, targetNavLink))
+		{
+			// Path finder failed to find target nav link
+			return false;
+		}
+
+		SVONPathFinderSettings settings;
+		SVONPathFinder pathFinder(volume, settings);
+
+		ret = pathFinder.FindPath(startNavLink, targetNavLink, startPos, targetPos, oPath);
 	}
+
 	return ret;
 }
