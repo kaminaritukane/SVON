@@ -5,8 +5,98 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class SVONTest : MonoBehaviour
+public class SVONWrapper
 {
+    public static SVONWrapper Instace => instance;
+
+    public void InitializeVolume(int voxelPower)
+    {
+        if (volumeHandle == IntPtr.Zero)
+        {
+            getVolumBoudingBoxCallback = new GetVolumBoudingBoxCallback(GetVolumBoudingBox);
+            overlapBoxBlockingTestCallback = new OverlapBoxBlockingTestCallback(OverlapBoxBlockingTest);
+
+            volumeHandle = CreateSVONVolume(voxelPower,
+                getVolumBoudingBoxCallback,
+                overlapBoxBlockingTestCallback);
+        }
+    }
+
+    public void ReleaseVolume()
+    {
+        if (volumeHandle != IntPtr.Zero)
+        {
+            ReleaseSVONVolume(volumeHandle);
+        }
+        volumeHandle = IntPtr.Zero;
+    }
+
+    public void GenerateVolume()
+    {
+        if (volumeHandle == IntPtr.Zero)
+        {
+            Debug.LogError($"Please call InitializeVolume first");
+            return;
+        }
+
+        SVONVolumeGenerate(volumeHandle);
+    }
+
+    public struct PathPoint
+    {
+        public int layer;
+        public Vector3 position;
+
+        public override string ToString()
+        {
+            return $"layer:{layer}, pos:{position}";
+        }
+    }
+
+    public List<PathPoint> FindPath(Vector3 startPos, Vector3 targetPos)
+    {
+        if (volumeHandle == IntPtr.Zero)
+        {
+            Debug.LogError($"Please call InitializeVolume first");
+            return null;
+        }
+
+        List<PathPoint> oPath = new List<PathPoint>();
+        DoFindPath(startPos, targetPos, ref oPath);
+
+        return oPath;
+    }
+
+    private unsafe void DoFindPath(Vector3 start, Vector3 end, ref List<PathPoint> oPath)
+    {
+        SVONPathPoint* pathPoints = null;
+        int pointsCount = 0;
+
+        FloatVector startPos = new FloatVector(start);
+        FloatVector targetPos = new FloatVector(end);
+
+        using (GenerateFindPathWrapper(volumeHandle, startPos, targetPos,
+            out pathPoints, out pointsCount))
+        {
+            SVONPathPoint* pPoint = pathPoints;
+            for (int i = 0; i < pointsCount; ++i)
+            {
+                PathPoint ppt = new PathPoint
+                {
+                    layer = pPoint->layer,
+                    position = pPoint->position.ToVector3()
+                };
+                oPath.Add(ppt);
+                ++pPoint;
+            }
+        }
+    }
+
+    private static SVONWrapper instance = new SVONWrapper();
+    private IntPtr volumeHandle = IntPtr.Zero;
+
+    #region SVON C++ APIs
+
     [StructLayout(LayoutKind.Sequential)]
     private struct FloatVector
     {
@@ -41,6 +131,11 @@ public class SVONTest : MonoBehaviour
         public static FloatVector operator -(FloatVector a, FloatVector b)
         {
             return new FloatVector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        public Vector3 ToVector3()
+        {
+            return new Vector3(X, Y, Z);
         }
 
         public override string ToString()
@@ -81,7 +176,7 @@ public class SVONTest : MonoBehaviour
     OverlapBoxBlockingTestCallback overlapBoxBlockingTestCallback;
 
     [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
-    private static extern IntPtr CreateSVONVolume(Int32 voxelPower,
+    private static unsafe extern IntPtr CreateSVONVolume(Int32 voxelPower,
         [MarshalAs(UnmanagedType.FunctionPtr)]GetVolumBoudingBoxCallback cbGetVolumBoudingBox,
         [MarshalAs(UnmanagedType.FunctionPtr)]OverlapBoxBlockingTestCallback cbOverlapBoxCheck);
 
@@ -89,7 +184,7 @@ public class SVONTest : MonoBehaviour
     private static unsafe extern void ReleaseSVONVolume(IntPtr volume);
 
     [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
-    private static extern bool SVONVolumeGenerate(IntPtr volume);
+    private static unsafe extern bool SVONVolumeGenerate(IntPtr volume);
 
     [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
     private static unsafe extern bool SVONFindPath(IntPtr volume,
@@ -102,7 +197,11 @@ public class SVONTest : MonoBehaviour
     [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
     private static unsafe extern bool ReleasePathHandle(IntPtr pathHandle);
 
-    class ItemsSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
+    #endregion
+
+    #region Safe pointer handler
+
+    private class ItemsSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         public ItemsSafeHandle()
             : base(true)
@@ -132,6 +231,8 @@ public class SVONTest : MonoBehaviour
         return itemsHandle;
     }
 
+    #endregion
+
     private bool GetVolumBoudingBox(ref FloatVector origin, ref FloatVector extent)
     {
         origin = new FloatVector(0, 0, 0);
@@ -156,42 +257,38 @@ public class SVONTest : MonoBehaviour
         return true;
     }
 
-    private unsafe void Start()
-    {
-        getVolumBoudingBoxCallback = new GetVolumBoudingBoxCallback(GetVolumBoudingBox);
+    //private unsafe void Start()
+    //{
+    //    var volume = CreateSVONVolume(2,
+    //        getVolumBoudingBoxCallback,
+    //        overlapBoxBlockingTestCallback);
 
-        overlapBoxBlockingTestCallback = new OverlapBoxBlockingTestCallback(OverlapBoxBlockingTest);
+    //    SVONVolumeGenerate(volume);
 
-        var volume = CreateSVONVolume(2,
-            getVolumBoudingBoxCallback,
-            overlapBoxBlockingTestCallback);
+    //    SVONPathPoint* pathPoints = null;
+    //    int pointsCount = 0;
 
-        SVONVolumeGenerate(volume);
-
-        SVONPathPoint* pathPoints = null;
-        int pointsCount = 0;
-
-        FloatVector startPos = new FloatVector(-30, 30, 10);
-        FloatVector targetPos = new FloatVector(30, 30, 10);
+    //    FloatVector startPos = new FloatVector(-30, 30, 10);
+    //    FloatVector targetPos = new FloatVector(30, 30, 10);
 
 
-        List<SVONPathPoint> navPath = new List<SVONPathPoint>();
-        using(GenerateFindPathWrapper(volume, startPos, targetPos,
-            out pathPoints, out pointsCount))
-        {
-            SVONPathPoint* pPoint = pathPoints;
-            for ( int i=0; i<pointsCount; ++i )
-            {
-                navPath.Add(*pPoint);
-                ++pPoint;
-            }
-        }
+    //    List<SVONPathPoint> navPath = new List<SVONPathPoint>();
+    //    using(GenerateFindPathWrapper(volume, startPos, targetPos,
+    //        out pathPoints, out pointsCount))
+    //    {
+    //        SVONPathPoint* pPoint = pathPoints;
+    //        for ( int i=0; i<pointsCount; ++i )
+    //        {
+    //            navPath.Add(*pPoint);
+    //            ++pPoint;
+    //        }
+    //    }
 
-        for (int i = 0; i < navPath.Count; ++i)
-        {
-            Debug.Log($"{i}:{navPath[i]}");
-        }
+    //    for (int i = 0; i < navPath.Count; ++i)
+    //    {
+    //        Debug.Log($"{i}:{navPath[i]}");
+    //    }
 
-        ReleaseSVONVolume(volume);
-    }
+    //    ReleaseSVONVolume(volume);
+    //}
 }
