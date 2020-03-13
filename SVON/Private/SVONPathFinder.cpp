@@ -217,15 +217,19 @@ void SVONPathFinder::BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 	reverse(oPoints.begin(), oPoints.end());
 }
 
-void SVONPathFinder::AddPathPoint(std::vector<SVONPathPoint>& points, SVONLink aCurrent)
+void SVONPathFinder::AddPathPoint(std::vector<SVONPathPoint>& points, SVONLink aPointLink)
 {
 	SVONPathPoint pos;
 
-	volume.GetLinkPosition(aCurrent, pos.position);
+	volume.GetLinkPosition(aPointLink, pos.position);
 
-	const SVONNode& node = volume.GetNode(aCurrent);
+	const SVONNode& node = volume.GetNode(aPointLink);
 	//This is rank, I really should sort the layers out
-	if (aCurrent.GetLayerIndex() == 0)
+	// Comment by Ray: Here, layer 0 means subnode, the author really should unify the standard
+	// Which means: when generating the volume, the layer 0 means leafnode layer, no layer for subnode
+	// But here(get the path point), the layer 0 means subnode...
+
+	if (aPointLink.GetLayerIndex() == 0)
 	{
 		if (!node.HasChildren())
 		{
@@ -238,7 +242,7 @@ void SVONPathFinder::AddPathPoint(std::vector<SVONPathPoint>& points, SVONLink a
 	}
 	else
 	{
-		pos.layer = aCurrent.GetLayerIndex() + 1;
+		pos.layer = aPointLink.GetLayerIndex() + 1;
 	}
 
 	points.push_back(pos);
