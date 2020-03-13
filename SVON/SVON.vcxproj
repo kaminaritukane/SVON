@@ -23,7 +23,6 @@
     <ClCompile Include="Private\SVONDefines.cpp" />
     <ClCompile Include="Private\SVONMath.cpp" />
     <ClCompile Include="Private\SVONMediator.cpp" />
-    <ClCompile Include="Private\SVONNavigationPath.cpp" />
     <ClCompile Include="Private\SVONPathFinder.cpp" />
     <ClCompile Include="Private\SVONVolume.cpp" />
     <ClCompile Include="Private\SVONWrapper.cpp" />

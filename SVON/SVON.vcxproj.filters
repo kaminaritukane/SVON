@@ -39,9 +39,6 @@
     <ClCompile Include="Private\SVONPathFinder.cpp">
       <Filter>Private</Filter>
     </ClCompile>
-    <ClCompile Include="Private\SVONNavigationPath.cpp">
-      <Filter>Private</Filter>
-    </ClCompile>
     <ClCompile Include="Private\SVONMediator.cpp">
       <Filter>Private</Filter>
     </ClCompile>

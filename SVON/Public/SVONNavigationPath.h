@@ -29,16 +29,16 @@ namespace SVON
 		}
 	};
 
-	struct SVONNavigationPath
-	{
-		bool isReady = false;
-		std::vector<SVONPathPoint> points;
+	//struct SVONNavigationPath
+	//{
+	//	bool isReady = false;
+	//	std::vector<SVONPathPoint> points;
 
-		void AddPoint(const SVONPathPoint& aPoint);
+	//	void AddPoint(const SVONPathPoint& aPoint);
 
-		bool IsReady() const { return isReady; }
-		void SetIsReady(bool aIsReady) { isReady = aIsReady; }
+	//	bool IsReady() const { return isReady; }
+	//	void SetIsReady(bool aIsReady) { isReady = aIsReady; }
 
-		
-	};
+	//	
+	//};
 }

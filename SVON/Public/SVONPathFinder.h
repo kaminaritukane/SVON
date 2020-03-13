@@ -47,7 +47,7 @@ namespace SVON
 			const SVONLink& aTarget,
 			const FloatVector& aStartPos,
 			const FloatVector& aTargetPos,
-			SVONNavigationPath& oPath);
+			std::vector<SVONPathPoint>& oPoints);
 
 	private:
 		LinkList openList;
@@ -77,7 +77,7 @@ namespace SVON
 		// Constructs the path by navigationg back through our CameFrom map
 		void BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 			const FloatVector& aStartPos, const FloatVector& aTargetPos,
-			SVONNavigationPath& oPath);
+			std::vector<SVONPathPoint>& oPoints);
 
 		void AddPathPoint(std::vector<SVONPathPoint>& points, SVONLink aCurrent);
 	};

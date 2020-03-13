@@ -28,7 +28,9 @@ bool SVONVolumeGenerate(SVONVolume* vol)
 bool SVONFindPath(SVONVolume* vol,
 	const FloatVector& startPos,
 	const FloatVector& targetPos, 
-	SVON::SVONNavigationPath& oPath)
+	intptr_t* pathHandle,
+	SVONPathPoint** pathData,
+	int* count)
 {
 	bool ret = false;
 	if (vol != nullptr)
@@ -52,10 +54,23 @@ bool SVONFindPath(SVONVolume* vol,
 
 		SVONPathFinderSettings settings;
 		SVONPathFinder pathFinder(volume, settings);
+		auto pPoints = new std::vector<SVONPathPoint>();
 
-		ret = pathFinder.FindPath(startNavLink, targetNavLink, startPos, targetPos, oPath);
+		ret = pathFinder.FindPath(startNavLink, targetNavLink, startPos, targetPos, *pPoints);
+
+		*pathHandle = reinterpret_cast<intptr_t>(pPoints);
+		*pathData = pPoints->data();
+		*count = static_cast<int>(pPoints->size());
 	}
 
 	return ret;
+}
+
+SVON_API bool ReleasePathHandle(intptr_t pathHandle)
+{
+	auto items = reinterpret_cast<std::vector<SVONPathPoint>*>(pathHandle);
+	delete items;
+
+	return true;
 }
 

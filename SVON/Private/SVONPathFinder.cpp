@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "SVONPathFinder.h"
 #include "SVONNode.h"
 #include "SVONVolume.h"
@@ -6,7 +8,7 @@ using namespace SVON;
 
 bool SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget,
 	const FloatVector& aStartPos, const FloatVector& aTargetPos, 
-	SVONNavigationPath& oPath)
+	std::vector<SVONPathPoint>& oPoints)
 {
 	openList.clear();
 	closedList.clear();
@@ -52,8 +54,7 @@ bool SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget,
 
 		if (current == goal)
 		{
-			BuildPath(cameFrom, current, aStartPos, aTargetPos, oPath);
-			oPath.SetIsReady(true);
+			BuildPath(cameFrom, current, aStartPos, aTargetPos, oPoints);
 			return true;
 		}
 
@@ -177,12 +178,10 @@ SVONPathFinder::ProcessLink(const SVONLink& aNeighbour)
 
 void SVONPathFinder::BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 	const FloatVector& aStartPos, const FloatVector& aTargetPos,
-	SVONNavigationPath& oPath)
+	std::vector<SVONPathPoint>& oPoints)
 {
-	std::vector<SVONPathPoint> points;
-
 	//>> Logic modified by Ray: add position of the voxel center that is closest to target position
-	AddPathPoint(points, aCurrent);// the positon of first point will be changed to TargetPos later
+	AddPathPoint(oPoints, aCurrent);// the positon of first point will be changed to TargetPos later
 	//<< Logic modified by Ray
 
 	LinksMap::const_iterator cit = aCameFrom.find(aCurrent);
@@ -190,16 +189,16 @@ void SVONPathFinder::BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 		&& cit->second != aCurrent)
 	{
 		aCurrent = cit->second;
-		AddPathPoint(points, aCurrent);		
+		AddPathPoint(oPoints, aCurrent);
 
 		cit = aCameFrom.find(aCurrent);
 	}
 
-	auto nPoints = points.size();
+	auto nPoints = oPoints.size();
 	if (nPoints > 1)
 	{
-		points[0].position = aTargetPos;
-		points[nPoints - 1].position = aStartPos;
+		oPoints[0].position = aTargetPos;
+		oPoints[nPoints - 1].position = aStartPos;
 	}
 	else // If start and end are in the same voxel, just use the start and target positions
 	{
@@ -207,18 +206,15 @@ void SVONPathFinder::BuildPath(LinksMap& aCameFrom, SVONLink aCurrent,
 		//>> Logic modified by Ray: aleady added at least one position, do not need this anymore
 		//if (nPoints == 0)
 		//{
-		//	points.push_back(SVONPathPoint());
+		//	oPoints.push_back(SVONPathPoint());
 		//}
 		//<< Logic modified by Ray
 
-		points[0].position = aTargetPos;
-		points.push_back(SVONPathPoint(aStartPos, start.GetLayerIndex()));
+		oPoints[0].position = aTargetPos;
+		oPoints.push_back(SVONPathPoint(aStartPos, start.GetLayerIndex()));
 	}
 
-	for (int i = (int)points.size() - 1; i >= 0; --i)
-	{
-		oPath.AddPoint(points[i]);
-	}
+	reverse(oPoints.begin(), oPoints.end());
 }
 
 void SVONPathFinder::AddPathPoint(std::vector<SVONPathPoint>& points, SVONLink aCurrent)
