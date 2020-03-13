@@ -18,7 +18,7 @@ namespace SVON
 	typedef bool (*GetVolumBoudingBoxFunc)(FloatVector& origin, FloatVector& extent);
 
 	typedef bool (*OverlapBoxBlockingTestFunc)(const FloatVector& pos, 
-		float boxRadius, uint32_t layers);
+		float boxRadius, int32_t layers);
 
 	class SVONVolume
 	{
@@ -40,7 +40,7 @@ namespace SVON
 		//bool showNeighbourLinks = false;
 		int32_t voxelPower = 3;
 
-		uint32_t collisionLayers = -1;
+		int32_t collisionLayers = -1;
 		//float clearance = 0.f;
 
 		SVOGenerationStrategy generationStrategy = SVOGenerationStrategy::UseBaked;

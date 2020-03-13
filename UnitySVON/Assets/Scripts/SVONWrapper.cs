@@ -171,7 +171,7 @@ public class SVONWrapper
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate bool OverlapBoxBlockingTestCallback(FloatVector pos,
-        float boxRadius, UInt32 layers);
+        float boxRadius, int layers);
 
     OverlapBoxBlockingTestCallback overlapBoxBlockingTestCallback;
 
@@ -235,60 +235,34 @@ public class SVONWrapper
 
     private bool GetVolumBoudingBox(ref FloatVector origin, ref FloatVector extent)
     {
-        origin = new FloatVector(0, 0, 0);
-        extent = new FloatVector(50, 50, 50);
+        Bounds box = new Bounds(Vector3.zero, Vector3.zero);
+
+        foreach ( var go in GameObject.FindObjectsOfType<Renderer>())
+        {
+            var r = go.GetComponent<Renderer>();
+            box.Encapsulate(r.bounds);
+        }
+
+        origin = new FloatVector(box.center);
+
+        var maxExtent = Math.Max(box.extents.x, Math.Max(box.extents.y, box.extents.z));
+        extent = new FloatVector(maxExtent);
+
+        Debug.Log($"origin:{origin}, extent:{extent}");
 
         return true;
     }
 
     private bool OverlapBoxBlockingTest(FloatVector pos,
-        float boxRadius, UInt32 layers)
+        float boxRadius, int layers)
     {
-        var boxOffset = new FloatVector(boxRadius);
-        FloatVector boxMin = pos - boxOffset;
-        FloatVector boxMax = pos + boxOffset;
-        if (boxMax.X <= -25 || boxMin.X >= 0
-            || boxMax.Y <= 25 || boxMin.Y >= 50
-            || boxMax.Z <= 0 || boxMin.Z >= 25.0f)
-        {
-            return false;
-        }
+        var v3Pos = new Vector3(pos.X, pos.Y, pos.Z);
+        var v3Radius = new Vector3(boxRadius, boxRadius, boxRadius);
+        bool hasHit = Physics.CheckBox(v3Pos, v3Radius, Quaternion.identity, layers);
 
-        return true;
+        //Debug.Log($"OverlapBoxBlocking pos:{v3Pos}, radius:{boxRadius}, hasHit:{hasHit}");
+
+        return hasHit;
     }
 
-    //private unsafe void Start()
-    //{
-    //    var volume = CreateSVONVolume(2,
-    //        getVolumBoudingBoxCallback,
-    //        overlapBoxBlockingTestCallback);
-
-    //    SVONVolumeGenerate(volume);
-
-    //    SVONPathPoint* pathPoints = null;
-    //    int pointsCount = 0;
-
-    //    FloatVector startPos = new FloatVector(-30, 30, 10);
-    //    FloatVector targetPos = new FloatVector(30, 30, 10);
-
-
-    //    List<SVONPathPoint> navPath = new List<SVONPathPoint>();
-    //    using(GenerateFindPathWrapper(volume, startPos, targetPos,
-    //        out pathPoints, out pointsCount))
-    //    {
-    //        SVONPathPoint* pPoint = pathPoints;
-    //        for ( int i=0; i<pointsCount; ++i )
-    //        {
-    //            navPath.Add(*pPoint);
-    //            ++pPoint;
-    //        }
-    //    }
-
-    //    for (int i = 0; i < navPath.Count; ++i)
-    //    {
-    //        Debug.Log($"{i}:{navPath[i]}");
-    //    }
-
-    //    ReleaseSVONVolume(volume);
-    //}
 }
