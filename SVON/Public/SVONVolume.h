@@ -64,6 +64,9 @@ namespace SVON
 		const std::vector<SVONNode>& GetLayer(layerindex_t aLayer) const;
 		float GetVoxelSize(layerindex_t aLayer) const;
 
+		int32_t GetNodesInLayer(layerindex_t aLayer) const;
+		int32_t GetNodesPerSide(layerindex_t aLayer) const;
+
 		bool EncomppassesPoint(const FloatVector& aPositon) const;
 		bool IsReadyForNavigation() const;
 
@@ -104,9 +107,6 @@ namespace SVON
 
 		bool FirstPassRasterize();
 		void RasterizeLayer(layerindex_t aLayer);
-
-		int32_t GetNodesInLayer(layerindex_t aLayer);
-		int32_t GetNodesPerSide(layerindex_t aLayer);
 
 		bool GetIndexForCode(layerindex_t aLayer, mortoncode_t aCode, nodeindex_t& oIndex) const;
 

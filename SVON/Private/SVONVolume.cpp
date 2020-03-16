@@ -254,12 +254,12 @@ void SVONVolume::RasterizeLayer(layerindex_t aLayer)
 	}
 }
 
-int32_t SVONVolume::GetNodesInLayer(layerindex_t aLayer)
+int32_t SVONVolume::GetNodesInLayer(layerindex_t aLayer) const
 {
 	return static_cast<int32_t>( powf(powf(2, static_cast<float>(voxelPower - aLayer)), 3) );
 }
 
-int32_t SVONVolume::GetNodesPerSide(layerindex_t aLayer)
+int32_t SVONVolume::GetNodesPerSide(layerindex_t aLayer) const
 {
 	return static_cast<int32_t>( powf(2, static_cast<float>(voxelPower - aLayer)) );
 }

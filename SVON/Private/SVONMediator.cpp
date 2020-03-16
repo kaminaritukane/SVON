@@ -30,6 +30,15 @@ bool SVONMediator::GetLinkFromPosition(const FloatVector& aPositon,
 
 		// Get the morton code we want for this layer
 		mortoncode_t code = morton3D_64_encode(x, y, z);
+		// If a node has 8 child nodes, then max morton code is 7
+		int32_t maxCode = aVolume.GetNodesInLayer(layerIndex) - 1;
+		if (code > maxCode)
+		{
+			// the position is right on the volume edge, 
+			// should enlarge the volume a little in GetVolumBoudingBoxFunc callback
+			return false;
+		}
+
 		for (nodeindex_t j = nodeIndex; j < layer.size(); ++j)
 		{
 			const SVONNode& node = layer[j];

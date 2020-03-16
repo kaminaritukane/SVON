@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\SVONVolumeSetting.cs" />
     <Compile Include="Assets\Scripts\SVONWrapper.cs" />
     <Compile Include="Assets\Scripts\TestCode.cs" />
     <Reference Include="Unity.Timeline.Editor">

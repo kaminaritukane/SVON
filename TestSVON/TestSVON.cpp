@@ -15,7 +15,7 @@ bool GetVolumBoudingBoxCallback(FloatVector& origin, FloatVector& extent)
     return true;
 }
 
-bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, uint32_t layers)
+bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, int32_t layers)
 {
     auto boxOffset = FloatVector(boxRadius);
     FloatVector boxMin = pos - boxOffset;

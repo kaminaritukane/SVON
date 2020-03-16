@@ -53,28 +53,28 @@ public class TestCode : MonoBehaviour
             });
         }
 
-        // Find path task 2
-        {
-            Debug.Log($"FindPathTask 2 started");
+        //// Find path task 2
+        //{
+        //    Debug.Log($"FindPathTask 2 started");
 
-            var startTime = Time.realtimeSinceStartup;
+        //    var startTime = Time.realtimeSinceStartup;
 
-            var start2 = startPoint2.position;
-            var target2 = targetPoint2.position;
-            Task.Run(() =>
-            {
-                var pts = SVONWrapper.Instace.FindPath(start2, target2);
-                return pts;
-            }).ContinueWith((antecedent) =>
-            {
-                Debug.Log($"FindPathTask 2 finished");
-                // Render pathPoints in main thread
-                lock (renderPathQue)
-                {
-                    renderPathQue.Enqueue(antecedent.Result);
-                }
-            });
-        }
+        //    var start2 = startPoint2.position;
+        //    var target2 = targetPoint2.position;
+        //    Task.Run(() =>
+        //    {
+        //        var pts = SVONWrapper.Instace.FindPath(start2, target2);
+        //        return pts;
+        //    }).ContinueWith((antecedent) =>
+        //    {
+        //        Debug.Log($"FindPathTask 2 finished");
+        //        // Render pathPoints in main thread
+        //        lock (renderPathQue)
+        //        {
+        //            renderPathQue.Enqueue(antecedent.Result);
+        //        }
+        //    });
+        //}
     }
 
     private void Update()

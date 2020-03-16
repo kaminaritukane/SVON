@@ -225,7 +225,7 @@ public class SVONWrapper
             out pathPoints,
             out count) )
         {
-            throw new InvalidOperationException();
+            Debug.Log($"Path was not found!");
         }
         return itemsHandle;
     }
@@ -234,22 +234,19 @@ public class SVONWrapper
 
     private bool GetVolumBoudingBox(ref FloatVector origin, ref FloatVector extent)
     {
-        Bounds box = new Bounds(Vector3.zero, Vector3.zero);
-
-        foreach ( var go in GameObject.FindObjectsOfType<Renderer>())
+        bool ret = false;
+        var go = GameObject.FindObjectOfType<SVONVolumeSetting>();
+        if ( go != null )
         {
-            var r = go.GetComponent<Renderer>();
-            box.Encapsulate(r.bounds);
+            origin = new FloatVector(go.transform.position);
+            extent = new FloatVector(go.GetComponent<SVONVolumeSetting>().extent);
+            ret = true;
         }
-
-        origin = new FloatVector(box.center);
-
-        var maxExtent = Math.Max(box.extents.x, Math.Max(box.extents.y, box.extents.z));
-        extent = new FloatVector(maxExtent);
-
-        Debug.Log($"origin:{origin}, extent:{extent}");
-
-        return true;
+        else
+        {
+            Debug.LogError($"Please specify the volume positon and extent, using SVONVolumeSetting script.");
+        }
+        return ret;
     }
 
     private bool OverlapBoxBlockingTest(FloatVector pos,
