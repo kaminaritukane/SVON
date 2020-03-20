@@ -7,8 +7,8 @@ public class TestCode : MonoBehaviour
     [SerializeField] int voxelPower = 2;
     [SerializeField] Transform startPoint1 = default;
     [SerializeField] Transform targetPoint1 = default;
-    [SerializeField] Transform startPoint2 = default;
-    [SerializeField] Transform targetPoint2 = default;
+    //[SerializeField] Transform startPoint2 = default;
+    //[SerializeField] Transform targetPoint2 = default;
 
     [SerializeField] GameObject pathPointGO = null;
 

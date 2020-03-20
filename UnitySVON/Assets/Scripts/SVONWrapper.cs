@@ -8,6 +8,7 @@ public class SVONWrapper
 {
     public static SVONWrapper Instace => instance;
 
+    public LayerMask boxOverlapFlag { get; set; } = -1;
     public void InitializeVolume(int voxelPower)
     {
         if (volumeHandle == IntPtr.Zero)
@@ -254,7 +255,7 @@ public class SVONWrapper
     {
         var v3Pos = new Vector3(pos.X, pos.Y, pos.Z);
         var v3Radius = new Vector3(boxRadius, boxRadius, boxRadius);
-        bool hasHit = Physics.CheckBox(v3Pos, v3Radius, Quaternion.identity, layers);
+        bool hasHit = Physics.CheckBox(v3Pos, v3Radius, Quaternion.identity, boxOverlapFlag);
 
         //Debug.Log($"OverlapBoxBlocking pos:{v3Pos}, radius:{boxRadius}, hasHit:{hasHit}");
 
