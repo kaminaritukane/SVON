@@ -10,9 +10,9 @@ namespace SVON
 		mortoncode_t code = 0;
 
 		SVONLink parent;
-		SVONLink firstChild;
+		SVONLink firstChild;// firstChild.Invalid == true, means no geometry in this node
 
-		SVONLink neighbours[6];
+		SVONLink neighbours[6];// neighbour[x].Invalid == true, means no neighbour(blocked or out of range
 
 		SVONNode()
 			: parent(SVONLink::GetInvalidLink())

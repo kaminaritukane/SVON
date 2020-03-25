@@ -625,6 +625,85 @@ void SVONVolume::ClearData()
 	numBytes = 0;
 }
 
+void SVONVolume::GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const
+{
+	float voxelSizeLayer0 = GetVoxelSize(0);
+
+	// Set extent of each layers
+	auto leafBoxes = SVONBlockedBoxes();
+	leafBoxes.extent = voxelSizeLayer0 * 0.25f * 0.5f;
+	oBoxes.push_back(leafBoxes);
+
+	for (int i = 0; i < numLayers; ++i)
+	{
+		auto boxes = SVONBlockedBoxes();
+		boxes.extent = GetVoxelSize(i) * 0.5f;
+		oBoxes.push_back(boxes);
+	}
+
+	// layer 0 is special
+	const auto& layerNodes = GetLayer(0);
+	for (const auto& node : layerNodes)
+	{
+		if (!node.HasChildren())
+		{
+			continue;
+		}
+
+		if (IsAllMembersBlocked(node))
+		{
+			FloatVector nodePosition;
+			GetNodePosition(0, node.code, nodePosition);
+			auto& boxes = oBoxes[1];// layer 0 is at index 1
+			boxes.boxCenters.push_back(nodePosition);
+		}
+		else // part of the leafnode is blocked, we need to check deeper into the subnodes layer
+		{
+			FloatVector oPosition;
+			GetNodePosition(0, node.code, oPosition);
+
+			float subnodeVoxelSize = voxelSizeLayer0 * 0.25f;
+			auto subnodePosOffset = FloatVector(voxelSizeLayer0 * 0.375f);// Ray Comment: = -voxelSizeLayer0 / 2.0f + voxelSizeLayer0 / 8.0f
+
+			const SVONLeafNode& leafNode = GetLeafNode(node.firstChild.nodeIndex);
+			for (int i = 0; i < 64; ++i)
+			{
+				bool isBlocked = leafNode.GetNode(i);
+				if (isBlocked)
+				{
+					uint_fast32_t x, y, z;
+					morton3D_64_decode(i, x, y, z);
+
+					auto subnodePos = oPosition + FloatVector(x * subnodeVoxelSize,
+						y * subnodeVoxelSize,
+						z * subnodeVoxelSize)
+						- subnodePosOffset;
+
+					auto& boxes = oBoxes[0];// subnode layer is at index 0
+					boxes.boxCenters.push_back(subnodePos);
+				}
+			}
+		}
+	}
+
+	// Check upper layers
+	for (int i = 2; i <= numLayers; ++i)
+	{
+		auto& boxes = oBoxes[i];
+
+		const auto& layerNodes = GetLayer(i - 1);
+		for (const auto& node : layerNodes)
+		{
+			if (IsAllMembersBlocked(node))
+			{
+				FloatVector nodePosition;
+				GetNodePosition(i, node.code, nodePosition);
+				boxes.boxCenters.push_back(nodePosition);
+			}
+		}
+	}	
+}
+
 void SVONVolume::RasterizeLeafNode(FloatVector& aOrigin, nodeindex_t aLeafIndex)
 {
 	float leafVoxelSize = GetVoxelSize(0) * 0.25f;
@@ -678,4 +757,46 @@ bool SVONVolume::IsBlocked(const FloatVector& aPositon, const float aSize) const
 	}
 	
 	return OverlapBoxBlockingTest(aPositon, aSize, collisionLayers);
+}
+
+bool SVONVolume::IsAllMembersBlocked(const SVONNode& node) const
+{
+	if (!node.HasChildren())// this node is empty, can pass through
+	{
+		return false;
+	}
+
+	bool bRet = true;
+
+	int32_t childLayerIndex = node.firstChild.GetLayerIndex();
+	if (childLayerIndex == 0)
+	{
+		const auto& leafnode = GetLeafNode(node.firstChild.GetNodeIndex());
+		bRet = leafnode.IsCompletelyBlocked();
+	}
+	else
+	{
+		// Check its 8 children node to see whether they're fully blocked, too
+		nodeindex_t childIndex = 0;
+		if (GetIndexForCode(childLayerIndex, node.code << 3, childIndex))
+		{
+			int32_t childIter = 0;
+			for (int iter = 0; iter < 8; ++iter)
+			{
+				childIter = childIndex + iter;
+				const auto& childNode = GetLayer(childLayerIndex)[childIter];
+				if (!IsAllMembersBlocked(childNode))
+				{
+					bRet = false;
+					break;
+				}
+			}
+		}
+		else
+		{
+			bRet = false;
+		}
+	}
+
+	return bRet;
 }

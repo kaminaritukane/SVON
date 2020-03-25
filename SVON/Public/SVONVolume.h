@@ -20,6 +20,13 @@ namespace SVON
 	typedef bool (*OverlapBoxBlockingTestFunc)(const FloatVector& pos, 
 		float boxRadius, int32_t layers);
 
+	// from leafnode to up layers, which means, index 0 here is leafnode, index 1 is layer 0...
+	struct SVONBlockedBoxes {
+		float extent;
+		std::vector<FloatVector> boxCenters;
+	};
+	typedef std::vector<SVONBlockedBoxes> VolumeBlockBoxes;
+
 	class SVONVolume
 	{
 	public:
@@ -83,13 +90,15 @@ namespace SVON
 
 		void ClearData();
 
+		void GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const;
+
+		const SVONData& GetVolumeData() const { return data; }
+
 	private:
 		bool isReadyFOrNavigation = false;
 
 		FloatVector origin;
 		FloatVector extent;
-
-		FloatVector debugPosition;
 
 		SVONData data;
 
@@ -118,5 +127,6 @@ namespace SVON
 		// Check for blocking...using this cached set for each layer for now for fast lookups
 		bool IsAnyMemberBlocked(layerindex_t aLayer, mortoncode_t aCode);
 		bool IsBlocked(const FloatVector& aPositon, const float aSize) const;
+		bool IsAllMembersBlocked(const SVONNode& node) const;
 	};
 }
