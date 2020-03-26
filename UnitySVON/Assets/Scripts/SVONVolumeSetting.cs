@@ -39,10 +39,10 @@ public class SVONVolumeSetting : MonoBehaviour
             Debug.Log($"GenerateVolume take time: { Time.realtimeSinceStartup - startTime}");
 
             blockedBoxes = SVONWrapper.Instace.GetVolumeBlockedBoxes();
-            foreach (var box in blockedBoxes)
-            {
-                Debug.Log($"layer:{box.layer}, extent: {box.extent}, pos: {box.boxCenter}");
-            }
+            //foreach (var box in blockedBoxes)
+            //{
+            //    Debug.Log($"layer:{box.layer}, extent: {box.extent}, pos: {box.boxCenter}");
+            //}
         }
         else
         {
