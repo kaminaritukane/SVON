@@ -51,13 +51,15 @@ void DebugVolume(SVONVolume* pVol)
     //    std::cout << "leafnode index:" << i << " voxelGrid:" << data.leafNodes[i].voxelGrid << std::endl;
     //}
 
-    VolumeBlockBoxes vbBoxes = VolumeBlockBoxes();
-    SVONGetVolumeBlockedBoxes(pVol, vbBoxes);
-    for (size_t i = 0; i < vbBoxes.size(); ++i)
+    intptr_t boxesHandle = 0;
+    SVONBlockedBoxes* oBoxes = nullptr;
+    int count = 0;
+    SVONGetVolumeBlockedBoxes(pVol, &boxesHandle, &oBoxes, &count);
+    for (size_t i = 0; i < count; ++i)
     {
-        const auto& boxCenters = vbBoxes[i].boxCenters;
+        const auto& boxCenters = oBoxes[i].boxCenters;
 
-        std::cout << i << ": extent " << vbBoxes[i].extent << ", count " << boxCenters.size() << std::endl;
+        std::cout << i << ": extent " << oBoxes[i].extent << ", count " << boxCenters.size() << std::endl;
         
         for (size_t j = 0; j < boxCenters.size(); ++j)
         {
@@ -65,6 +67,8 @@ void DebugVolume(SVONVolume* pVol)
             std::cout << pos.X << ", " << pos.Y << ", " << pos.Z << std::endl;
         }
     }
+
+    ReleaseBoxesHandle(boxesHandle);
 }
 
 int main()

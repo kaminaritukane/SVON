@@ -66,13 +66,6 @@ bool SVONFindPath(SVONVolume* vol,
 	return ret;
 }
 
-SVON_API bool SVONGetVolumeBlockedBoxes(SVONVolume* vol, VolumeBlockBoxes& oBoxes)
-{
-	vol->GetVolumeBlockedBoxes(oBoxes);
-
-	return true;
-}
-
 SVON_API bool ReleasePathHandle(intptr_t pathHandle)
 {
 	auto items = reinterpret_cast<std::vector<SVONPathPoint>*>(pathHandle);
@@ -81,3 +74,22 @@ SVON_API bool ReleasePathHandle(intptr_t pathHandle)
 	return true;
 }
 
+SVON_API bool SVONGetVolumeBlockedBoxes(SVONVolume* vol, intptr_t* boxesHandle, SVONBlockedBoxes** oBoxes, int* count)
+{
+	auto pVolumeBlockBoxes = new VolumeBlockBoxes();
+	vol->GetVolumeBlockedBoxes(*pVolumeBlockBoxes);
+
+	*boxesHandle = reinterpret_cast<intptr_t>(pVolumeBlockBoxes);
+	*oBoxes = pVolumeBlockBoxes->data();
+	*count = static_cast<int>(pVolumeBlockBoxes->size());
+
+	return true;
+}
+
+SVON_API bool ReleaseBoxesHandle(intptr_t boxesHandle)
+{
+	auto items = reinterpret_cast<VolumeBlockBoxes*>(boxesHandle);
+	delete items;
+
+	return true;
+}

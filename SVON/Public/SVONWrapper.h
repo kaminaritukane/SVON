@@ -25,8 +25,12 @@ extern "C"
 		SVONPathPoint** pathData,
 		int* count);
 
-	SVON_API bool SVONGetVolumeBlockedBoxes(SVONVolume* vol,
-		VolumeBlockBoxes& oBoxes);
-
 	SVON_API bool ReleasePathHandle(intptr_t pathHandle);
+
+	SVON_API bool SVONGetVolumeBlockedBoxes(SVONVolume* vol,
+		intptr_t* boxesHandle,
+		SVONBlockedBoxes** oBoxes,
+		int* count);
+
+	SVON_API bool ReleaseBoxesHandle(intptr_t boxesHandle);
 }
