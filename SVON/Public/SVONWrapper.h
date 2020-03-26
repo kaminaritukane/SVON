@@ -10,6 +10,12 @@ extern "C"
 {
 	struct SVONNavigationPath;
 
+	struct SVONBlockedBox {
+		int layer = 0;
+		float extent = 0.0f;
+		FloatVector boxCenter;
+	};
+
 	SVON_API SVONVolume* CreateSVONVolume(int32_t aVoxelPower,
 		GetVolumBoudingBoxFunc getVolumBoudingBoxFunc,
 		OverlapBoxBlockingTestFunc boxOverlapCheckFunc);
@@ -29,7 +35,7 @@ extern "C"
 
 	SVON_API bool SVONGetVolumeBlockedBoxes(SVONVolume* vol,
 		intptr_t* boxesHandle,
-		SVONBlockedBoxes** oBoxes,
+		SVONBlockedBox** oBoxes,
 		int* count);
 
 	SVON_API bool ReleaseBoxesHandle(intptr_t boxesHandle);

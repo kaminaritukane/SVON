@@ -11,7 +11,7 @@ using namespace SVON;
 bool GetVolumBoudingBoxCallback(FloatVector& origin, FloatVector& extent)
 {
     origin = FloatVector(0, 0, 0);
-    extent = FloatVector(50, 50, 50);
+    extent = FloatVector(4, 4, 4);
     return true;
 }
 
@@ -20,9 +20,9 @@ bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, int
     auto boxOffset = FloatVector(boxRadius);
     FloatVector boxMin = pos - boxOffset;
     FloatVector boxMax = pos + boxOffset;
-    if (boxMax.X <= -25 || boxMin.X >= 0
-        || boxMax.Y <= 25 || boxMin.Y >= 50
-        || boxMax.Z <= 0 || boxMin.Z >= 25.35f)
+    if (boxMax.X <= -3.9f || boxMin.X >= -0.1f
+        || boxMax.Y <= -3.9f || boxMin.Y >= -0.1f
+        || boxMax.Z <= -3.9f || boxMin.Z >= -0.1f)
     {
         return false;
     }
@@ -52,20 +52,16 @@ void DebugVolume(SVONVolume* pVol)
     //}
 
     intptr_t boxesHandle = 0;
-    SVONBlockedBoxes* oBoxes = nullptr;
+    SVONBlockedBox* oBoxes = nullptr;
     int count = 0;
     SVONGetVolumeBlockedBoxes(pVol, &boxesHandle, &oBoxes, &count);
     for (size_t i = 0; i < count; ++i)
     {
-        const auto& boxCenters = oBoxes[i].boxCenters;
+        const auto& box = oBoxes[i];
+        const auto& pos = box.boxCenter;
 
-        std::cout << i << ": extent " << oBoxes[i].extent << ", count " << boxCenters.size() << std::endl;
-        
-        for (size_t j = 0; j < boxCenters.size(); ++j)
-        {
-            const auto& pos = boxCenters[j];
-            std::cout << pos.X << ", " << pos.Y << ", " << pos.Z << std::endl;
-        }
+        std::cout << "layer:" << box.layer << ", extent:" << box.extent 
+            << ", " << pos.X << ", " << pos.Y << ", " << pos.Z << std::endl;
     }
 
     ReleaseBoxesHandle(boxesHandle);
@@ -73,7 +69,7 @@ void DebugVolume(SVONVolume* pVol)
 
 int main()
 {
-    auto pVol = CreateSVONVolume(2, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
+    auto pVol = CreateSVONVolume(1, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
 
     chrono::milliseconds startMs = chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()

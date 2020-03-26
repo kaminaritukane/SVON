@@ -22,7 +22,7 @@ namespace SVON
 
 	// from leafnode to up layers, which means, index 0 here is leafnode, index 1 is layer 0...
 	struct SVONBlockedBoxes {
-		float extent;
+		float extent = 0.0f;
 		std::vector<FloatVector> boxCenters;
 	};
 	typedef std::vector<SVONBlockedBoxes> VolumeBlockBoxes;
@@ -127,6 +127,6 @@ namespace SVON
 		// Check for blocking...using this cached set for each layer for now for fast lookups
 		bool IsAnyMemberBlocked(layerindex_t aLayer, mortoncode_t aCode);
 		bool IsBlocked(const FloatVector& aPositon, const float aSize) const;
-		bool IsAllMembersBlocked(const SVONNode& node) const;
+		bool IsAllMembersBlocked(layerindex_t aLayer, const SVONNode& node) const;
 	};
 }

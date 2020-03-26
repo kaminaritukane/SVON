@@ -650,7 +650,7 @@ void SVONVolume::GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const
 			continue;
 		}
 
-		if (IsAllMembersBlocked(node))
+		if (IsAllMembersBlocked(0, node))
 		{
 			FloatVector nodePosition;
 			GetNodePosition(0, node.code, nodePosition);
@@ -691,13 +691,14 @@ void SVONVolume::GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const
 	{
 		auto& boxes = oBoxes[i];
 
-		const auto& layerNodes = GetLayer(i - 1);
+		auto layer = i - 1;
+		const auto& layerNodes = GetLayer(layer);
 		for (const auto& node : layerNodes)
 		{
-			if (IsAllMembersBlocked(node))
+			if (IsAllMembersBlocked(layer, node))
 			{
 				FloatVector nodePosition;
-				GetNodePosition(i, node.code, nodePosition);
+				GetNodePosition(layer, node.code, nodePosition);
 				boxes.boxCenters.push_back(nodePosition);
 			}
 		}
@@ -759,7 +760,7 @@ bool SVONVolume::IsBlocked(const FloatVector& aPositon, const float aSize) const
 	return OverlapBoxBlockingTest(aPositon, aSize, collisionLayers);
 }
 
-bool SVONVolume::IsAllMembersBlocked(const SVONNode& node) const
+bool SVONVolume::IsAllMembersBlocked(layerindex_t aLayer, const SVONNode& node) const
 {
 	if (!node.HasChildren())// this node is empty, can pass through
 	{
@@ -768,24 +769,27 @@ bool SVONVolume::IsAllMembersBlocked(const SVONNode& node) const
 
 	bool bRet = true;
 
-	int32_t childLayerIndex = node.firstChild.GetLayerIndex();
-	if (childLayerIndex == 0)
+	if (aLayer == 0)
 	{
+		auto leafnodeIndex = node.firstChild.GetNodeIndex();
 		const auto& leafnode = GetLeafNode(node.firstChild.GetNodeIndex());
-		bRet = leafnode.IsCompletelyBlocked();
+		if (!leafnode.IsCompletelyBlocked())
+		{
+			bRet = false;
+		}
 	}
 	else
 	{
 		// Check its 8 children node to see whether they're fully blocked, too
 		nodeindex_t childIndex = 0;
-		if (GetIndexForCode(childLayerIndex, node.code << 3, childIndex))
+		if (GetIndexForCode(aLayer, node.code << 3, childIndex))
 		{
 			int32_t childIter = 0;
-			for (int iter = 0; iter < 8; ++iter)
+			for (int32_t iter = 0; iter < 8; ++iter)
 			{
 				childIter = childIndex + iter;
-				const auto& childNode = GetLayer(childLayerIndex)[childIter];
-				if (!IsAllMembersBlocked(childNode))
+				const auto& childNode = GetLayer(aLayer - 1)[childIter];
+				if (!IsAllMembersBlocked(aLayer - 1, childNode))
 				{
 					bRet = false;
 					break;

@@ -8,6 +8,24 @@ public class SVONWrapper
 {
     public static SVONWrapper Instace => instance;
 
+    public struct PathPoint
+    {
+        public int layer;
+        public Vector3 position;
+
+        public override string ToString()
+        {
+            return $"layer:{layer}, pos:{position}";
+        }
+    }
+
+    public struct BlockedBox
+    {
+        public int layer;
+        public float extent;
+        public Vector3 boxCenter;
+    }
+
     public LayerMask boxOverlapFlag { get; set; } = -1;
     public void InitializeVolume(int voxelPower)
     {
@@ -42,17 +60,6 @@ public class SVONWrapper
         SVONVolumeGenerate(volumeHandle);
     }
 
-    public struct PathPoint
-    {
-        public int layer;
-        public Vector3 position;
-
-        public override string ToString()
-        {
-            return $"layer:{layer}, pos:{position}";
-        }
-    }
-
     public List<PathPoint> FindPath(Vector3 startPos, Vector3 targetPos)
     {
         if (volumeHandle == IntPtr.Zero)
@@ -65,6 +72,45 @@ public class SVONWrapper
         DoFindPath(startPos, targetPos, ref oPath);
 
         return oPath;
+    }
+
+    public List<BlockedBox> GetVolumeBlockedBoxes()
+    {
+        if (volumeHandle == IntPtr.Zero)
+        {
+            Debug.LogError($"Please call InitializeVolume first");
+            return null;
+        }
+
+        List<BlockedBox> boxList = new List<BlockedBox>();
+        DoGetBlockedBoxes(ref boxList);
+
+        return boxList;
+    }
+
+    private unsafe void DoGetBlockedBoxes(ref List<BlockedBox> boxList)
+    {
+        SVONBlockedBox* blockedBoxes = null;
+        int boxCount = 0;
+        using (GenerateGetBlockedBoxesWrapper(volumeHandle, out blockedBoxes, out boxCount))
+        {
+            if (boxCount > 0)
+            {
+                SVONBlockedBox* pBox = blockedBoxes;
+                for (int i = 0; i < boxCount; ++i)
+                {
+                    BlockedBox box = new BlockedBox
+                    {
+                        layer = pBox->layer,
+                        extent = pBox->extent,
+                        boxCenter = pBox->boxCenter.ToVector3()
+                    };
+                    boxList.Add(box);
+
+                    ++pBox;
+                }
+            }
+        }
     }
 
     private unsafe void DoFindPath(Vector3 start, Vector3 end, ref List<PathPoint> oPath)
@@ -87,6 +133,7 @@ public class SVONWrapper
                     position = pPoint->position.ToVector3()
                 };
                 oPath.Add(ppt);
+
                 ++pPoint;
             }
         }
@@ -157,11 +204,12 @@ public class SVONWrapper
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct SVONNavigationPath
+    private struct SVONBlockedBox
     {
-        public bool isReady;
-        public List<SVONPathPoint> points;
-	};
+        public int layer;
+        public float extent;
+        public FloatVector boxCenter;
+    }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate bool GetVolumBoudingBoxCallback(ref FloatVector origin,
@@ -190,20 +238,29 @@ public class SVONWrapper
     private static unsafe extern bool SVONFindPath(IntPtr volume,
         FloatVector startPos,
 		FloatVector targetPos,
-		out ItemsSafeHandle pathHandle,
+		out PathSafeHandle pathHandle,
         out SVONPathPoint* pathPoints,
         out int count);
 
     [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
     private static unsafe extern bool ReleasePathHandle(IntPtr pathHandle);
 
+    [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
+    private static unsafe extern bool SVONGetVolumeBlockedBoxes(IntPtr volume,
+        out BlockedBoxesSafeHandle boxesHandle,
+        out SVONBlockedBox* oBoxes,
+        out int count);
+
+    [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
+    private static unsafe extern bool ReleaseBoxesHandle(IntPtr pathHandle);
+
     #endregion
 
     #region Safe pointer handler
 
-    private class ItemsSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
+    private class PathSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        public ItemsSafeHandle()
+        public PathSafeHandle()
             : base(true)
         {
         }
@@ -214,13 +271,26 @@ public class SVONWrapper
         }
     }
 
-    static unsafe ItemsSafeHandle GenerateFindPathWrapper(IntPtr volume,
+    private class BlockedBoxesSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
+    {
+        public BlockedBoxesSafeHandle()
+            : base(true)
+        {
+        }
+
+        protected override bool ReleaseHandle()
+        {
+            return ReleaseBoxesHandle(handle);
+        }
+    }
+
+    private static unsafe PathSafeHandle GenerateFindPathWrapper(IntPtr volume,
         FloatVector startPos,
         FloatVector targetPos,
         out SVONPathPoint* pathPoints, 
         out int count)
     {
-        ItemsSafeHandle itemsHandle;
+        PathSafeHandle itemsHandle;
         if ( !SVONFindPath(volume, startPos, targetPos, 
             out itemsHandle,
             out pathPoints,
@@ -229,6 +299,18 @@ public class SVONWrapper
             Debug.Log($"Path was not found!");
         }
         return itemsHandle;
+    }
+
+    private static unsafe BlockedBoxesSafeHandle GenerateGetBlockedBoxesWrapper(IntPtr volume,
+        out SVONBlockedBox* oBoxes,
+        out int count)
+    {
+        BlockedBoxesSafeHandle itemsSafeHandle;
+        if ( !SVONGetVolumeBlockedBoxes(volume, out itemsSafeHandle, out oBoxes, out count) )
+        {
+            Debug.Log($"Get Blocked Boxes failed!");
+        }
+        return itemsSafeHandle;
     }
 
     #endregion

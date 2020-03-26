@@ -74,21 +74,38 @@ SVON_API bool ReleasePathHandle(intptr_t pathHandle)
 	return true;
 }
 
-SVON_API bool SVONGetVolumeBlockedBoxes(SVONVolume* vol, intptr_t* boxesHandle, SVONBlockedBoxes** oBoxes, int* count)
+SVON_API bool SVONGetVolumeBlockedBoxes(SVONVolume* vol, intptr_t* boxesHandle, SVONBlockedBox** oBoxes, int* count)
 {
-	auto pVolumeBlockBoxes = new VolumeBlockBoxes();
-	vol->GetVolumeBlockedBoxes(*pVolumeBlockBoxes);
+	auto volumeBlockBoxes = VolumeBlockBoxes();
+	vol->GetVolumeBlockedBoxes(volumeBlockBoxes);
 
-	*boxesHandle = reinterpret_cast<intptr_t>(pVolumeBlockBoxes);
-	*oBoxes = pVolumeBlockBoxes->data();
-	*count = static_cast<int>(pVolumeBlockBoxes->size());
+	auto pBlockedBoxes = new std::vector<SVONBlockedBox>();
+
+	for (int i = 0; i < volumeBlockBoxes.size(); ++i)
+	{
+		auto layerBoxes = volumeBlockBoxes[i];
+		float extent = layerBoxes.extent;
+		auto boxAmount = layerBoxes.boxCenters.size();
+		for (size_t j = 0; j < boxAmount; j++)
+		{
+			auto box = SVONBlockedBox();
+			box.layer = i;
+			box.extent = extent;
+			box.boxCenter = layerBoxes.boxCenters[j];
+			pBlockedBoxes->push_back(box);
+		}
+	}
+
+	*boxesHandle = reinterpret_cast<intptr_t>(pBlockedBoxes);
+	*oBoxes = pBlockedBoxes->data();
+	*count = static_cast<int>(pBlockedBoxes->size());
 
 	return true;
 }
 
 SVON_API bool ReleaseBoxesHandle(intptr_t boxesHandle)
 {
-	auto items = reinterpret_cast<VolumeBlockBoxes*>(boxesHandle);
+	auto items = reinterpret_cast<SVONBlockedBox*>(boxesHandle);
 	delete items;
 
 	return true;
