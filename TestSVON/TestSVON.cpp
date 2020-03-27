@@ -20,14 +20,20 @@ bool OverlapBoxBlockingTestCallback(const FloatVector& pos, float boxRadius, int
     auto boxOffset = FloatVector(boxRadius);
     FloatVector boxMin = pos - boxOffset;
     FloatVector boxMax = pos + boxOffset;
-    if (boxMax.X <= -3.9f || boxMin.X >= -0.1f
-        || boxMax.Y <= -3.9f || boxMin.Y >= -0.1f
-        || boxMax.Z <= -3.9f || boxMin.Z >= -0.1f)
+    //if (boxMax.X <= -3.9f || boxMin.X >= -0.1f
+    //    || boxMax.Y <= -3.9f || boxMin.Y >= -0.1f
+    //    || boxMax.Z <= -3.9f || boxMin.Z >= -0.1f)
+    //{
+    //    return false;
+    //}
+    if ( ( boxMax.X <= -0.1f || boxMin.X >= 1.1f
+            || boxMax.Y <= -0.1f || boxMin.Y >= 1.1f )
+       && ( boxMax.Z >= -0.1f || boxMin.Z <= 1.1f ) )
     {
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 void DebugVolume(SVONVolume* pVol)
@@ -69,7 +75,7 @@ void DebugVolume(SVONVolume* pVol)
 
 int main()
 {
-    auto pVol = CreateSVONVolume(1, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
+    auto pVol = CreateSVONVolume(3, GetVolumBoudingBoxCallback, OverlapBoxBlockingTestCallback);
 
     chrono::milliseconds startMs = chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()
@@ -82,37 +88,37 @@ int main()
         ) - startMs).count();
 
     // Debug Volume
-    DebugVolume(pVol);
+    //DebugVolume(pVol);
 
-    //// Path finding test
-    //{
-    //    startMs = chrono::duration_cast<chrono::milliseconds>(
-    //        chrono::system_clock::now().time_since_epoch()
-    //        );
+    // Path finding test
+    {
+        startMs = chrono::duration_cast<chrono::milliseconds>(
+            chrono::system_clock::now().time_since_epoch()
+            );
 
-    //    FloatVector startPos(-30, 30, 10);
-    //    FloatVector targetPos(30, 30, 10);
+        FloatVector startPos(0.5f, 0.5f, -3);
+        FloatVector targetPos(0.5f, 0.5f, 3);
 
-    //    intptr_t pathHandle = 0;
-    //    SVONPathPoint* pathData = nullptr;
-    //    int pointCount = 0;
-    //    SVONFindPath(pVol, startPos, targetPos, &pathHandle, &pathData, &pointCount);
+        intptr_t pathHandle = 0;
+        SVONPathPoint* pathData = nullptr;
+        int pointCount = 0;
+        SVONFindPath(pVol, startPos, targetPos, 1, &pathHandle, &pathData, &pointCount);
 
-    //    buildTime = (chrono::duration_cast<chrono::milliseconds>(
-    //        chrono::system_clock::now().time_since_epoch()
-    //        ) - startMs).count();
+        buildTime = (chrono::duration_cast<chrono::milliseconds>(
+            chrono::system_clock::now().time_since_epoch()
+            ) - startMs).count();
 
-    //    SVONPathPoint* pPoint = pathData;
-    //    for (int i = 0; i < pointCount; ++i)
-    //    {
-    //        std::cout << pPoint->layer << ":" << pPoint->position.X << ", "
-    //            << pPoint->position.Y << ", " << pPoint->position.Z << std::endl;
+        SVONPathPoint* pPoint = pathData;
+        for (int i = 0; i < pointCount; ++i)
+        {
+            std::cout << pPoint->layer << ":" << pPoint->position.X << ", "
+                << pPoint->position.Y << ", " << pPoint->position.Z << std::endl;
 
-    //        ++pPoint;
-    //    }
+            ++pPoint;
+        }
 
-    //    ReleasePathHandle(pathHandle);
-    //}
+        ReleasePathHandle(pathHandle);
+    }
 
     ReleaseSVONVolume(pVol);
 }

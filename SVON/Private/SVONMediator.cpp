@@ -4,6 +4,7 @@
 using namespace SVON;
 
 bool SVONMediator::GetLinkFromPosition(const FloatVector& aPositon, 
+	float agentSize,
 	const SVONVolume& aVolume, 
 	SVONLink& oLink)
 {
@@ -14,9 +15,23 @@ bool SVONMediator::GetLinkFromPosition(const FloatVector& aPositon,
 
 	int layerIndex = aVolume.GetNumLayers() - 1;
 	nodeindex_t nodeIndex = 0;
+
+	int lastLayerIndex = 0;
+	nodeindex_t lastNodeIndex = 0;
+
 	while (layerIndex >= 0
 		&& layerIndex < aVolume.GetNumLayers())
 	{
+		auto voxelSize = aVolume.GetVoxelSize(layerIndex);
+		if (voxelSize < agentSize)
+		{
+			// Get parent node
+			oLink.layerIndex = lastLayerIndex;
+			oLink.nodeIndex = lastNodeIndex;
+			oLink.subnodeIndex = 0;
+			return true;
+		}
+
 		// Get the layer and voxel size
 		const std::vector<SVONNode>& layer = aVolume.GetLayer(layerIndex);
 
@@ -57,9 +72,17 @@ bool SVONMediator::GetLinkFromPosition(const FloatVector& aPositon,
 				// If this is a leaf node, we need to find our subnode
 				if (layerIndex == 0)
 				{
+					float voxelSize = aVolume.GetVoxelSize(layerIndex);
+					float subnodeVoxelSize = voxelSize * 0.25f;
+					if (subnodeVoxelSize < agentSize)
+					{
+						// TODO: check whether agent overlaps with subnodes
+						// for now, return false. means the agent is overlaps with this layer 0 node
+						return false;
+					}
+
 					const SVONLeafNode& leaf = aVolume.GetLeafNode(node.firstChild.nodeIndex);
 					// We need to calculate the node local positon to get the morton code for the leaf
-					float voxelSize = aVolume.GetVoxelSize(layerIndex);
 					// The world positon of the 0 node
 					FloatVector nodePosition;
 					aVolume.GetNodePosition(layerIndex, node.code, nodePosition);
@@ -69,9 +92,9 @@ bool SVONMediator::GetLinkFromPosition(const FloatVector& aPositon,
 					FloatVector nodeLocalPos = aPositon - nodeOrigin;
 					// Now get our voxel coordinates
 					IntVector coord;
-					coord.X = static_cast<int>(round(nodeLocalPos.X / (voxelSize * 0.25f) + 0.5));
-					coord.Y = static_cast<int>(round(nodeLocalPos.Y / (voxelSize * 0.25f) + 0.5));
-					coord.Z = static_cast<int>(round(nodeLocalPos.Z / (voxelSize * 0.25f) + 0.5));
+					coord.X = static_cast<int>(round(nodeLocalPos.X / subnodeVoxelSize + 0.5));
+					coord.Y = static_cast<int>(round(nodeLocalPos.Y / subnodeVoxelSize + 0.5));
+					coord.Z = static_cast<int>(round(nodeLocalPos.Z / subnodeVoxelSize + 0.5));
 
 					// So our link is.....*drum roll*
 					oLink.layerIndex = 0; // Layer 0 (leaf)
@@ -89,6 +112,9 @@ bool SVONMediator::GetLinkFromPosition(const FloatVector& aPositon,
 
 					return true;
 				}
+
+				lastLayerIndex = layerIndex;
+				lastNodeIndex = j;
 
 				// If we've got here, the current node has a child, and isn't a leaf
 				// so lets go down...

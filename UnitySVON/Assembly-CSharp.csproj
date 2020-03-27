@@ -63,9 +63,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\AgentTest.cs" />
     <Compile Include="Assets\Scripts\SVONVolumeSetting.cs" />
     <Compile Include="Assets\Scripts\SVONWrapper.cs" />
-    <Compile Include="Assets\Scripts\TestCode.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/C++/SVON/UnitySVON/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

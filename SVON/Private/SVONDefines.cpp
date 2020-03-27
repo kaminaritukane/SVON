@@ -2,13 +2,17 @@
 
 using namespace SVON;
 
+// In UE4, Left Hand Rule is used,
+// The X axis is to the right directiong
+// The Y axis is towards me, 
+// The Z axis is upwards
 const IntVector SVONStatics::dirs[] = {
-	IntVector(1,0,0),
-	IntVector(-1,0,0),
-	IntVector(0,1,0),
-	IntVector(0,-1,0),
-	IntVector(0,0,1),
-	IntVector(0,0,-1)
+	IntVector(1,0,0),//right
+	IntVector(-1,0,0),//left
+	IntVector(0,1,0),//towards me
+	IntVector(0,-1,0),//backwards from me
+	IntVector(0,0,1),//up
+	IntVector(0,0,-1)//donw
 };
 
 const nodeindex_t SVONStatics::dirChildOffsets[6][4] = {

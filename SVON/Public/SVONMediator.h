@@ -10,6 +10,7 @@ namespace SVON {
 	{
 	public:
 		static bool GetLinkFromPosition(const FloatVector& aPositon,
+			float agentSize,
 			const SVONVolume& aVolume,
 			SVONLink& oLink);
 

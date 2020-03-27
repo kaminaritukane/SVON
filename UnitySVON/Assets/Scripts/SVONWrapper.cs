@@ -60,7 +60,7 @@ public class SVONWrapper
         SVONVolumeGenerate(volumeHandle);
     }
 
-    public List<PathPoint> FindPath(Vector3 startPos, Vector3 targetPos)
+    public List<PathPoint> FindPath(Vector3 startPos, Vector3 targetPos, float agentSize)
     {
         if (volumeHandle == IntPtr.Zero)
         {
@@ -69,7 +69,7 @@ public class SVONWrapper
         }
 
         List<PathPoint> oPath = new List<PathPoint>();
-        DoFindPath(startPos, targetPos, ref oPath);
+        DoFindPath(startPos, targetPos, agentSize, ref oPath);
 
         return oPath;
     }
@@ -113,7 +113,8 @@ public class SVONWrapper
         }
     }
 
-    private unsafe void DoFindPath(Vector3 start, Vector3 end, ref List<PathPoint> oPath)
+    private unsafe void DoFindPath(Vector3 start, Vector3 end, float agentSize,
+        ref List<PathPoint> oPath)
     {
         SVONPathPoint* pathPoints = null;
         int pointsCount = 0;
@@ -121,7 +122,7 @@ public class SVONWrapper
         FloatVector startPos = new FloatVector(start);
         FloatVector targetPos = new FloatVector(end);
 
-        using (GenerateFindPathWrapper(volumeHandle, startPos, targetPos,
+        using (GenerateFindPathWrapper(volumeHandle, startPos, targetPos, agentSize,
             out pathPoints, out pointsCount))
         {
             SVONPathPoint* pPoint = pathPoints;
@@ -238,7 +239,8 @@ public class SVONWrapper
     private static unsafe extern bool SVONFindPath(IntPtr volume,
         FloatVector startPos,
 		FloatVector targetPos,
-		out PathSafeHandle pathHandle,
+        float agentSize,
+        out PathSafeHandle pathHandle,
         out SVONPathPoint* pathPoints,
         out int count);
 
@@ -287,11 +289,12 @@ public class SVONWrapper
     private static unsafe PathSafeHandle GenerateFindPathWrapper(IntPtr volume,
         FloatVector startPos,
         FloatVector targetPos,
+        float agentSize,
         out SVONPathPoint* pathPoints, 
         out int count)
     {
         PathSafeHandle itemsHandle;
-        if ( !SVONFindPath(volume, startPos, targetPos, 
+        if ( !SVONFindPath(volume, startPos, targetPos, agentSize,
             out itemsHandle,
             out pathPoints,
             out count) )

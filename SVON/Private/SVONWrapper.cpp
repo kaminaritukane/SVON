@@ -28,6 +28,7 @@ bool SVONVolumeGenerate(SVONVolume* vol)
 bool SVONFindPath(SVONVolume* vol,
 	const FloatVector& startPos,
 	const FloatVector& targetPos, 
+	float agentSize,
 	intptr_t* pathHandle,
 	SVONPathPoint** pathData,
 	int* count)
@@ -38,7 +39,7 @@ bool SVONFindPath(SVONVolume* vol,
 		auto volume = *vol;
 
 		SVONLink startNavLink;
-		if (!SVONMediator::GetLinkFromPosition(startPos, volume, startNavLink))
+		if (!SVONMediator::GetLinkFromPosition(startPos, agentSize, volume, startNavLink))
 		{
 			// Path finder failed to find start nav link. 
 			// Is your gameobject blocking the layer you've selected to generate the nav data with?
@@ -46,7 +47,7 @@ bool SVONFindPath(SVONVolume* vol,
 		}
 
 		SVONLink targetNavLink;
-		if (!SVONMediator::GetLinkFromPosition(targetPos, volume, targetNavLink))
+		if (!SVONMediator::GetLinkFromPosition(targetPos, agentSize, volume, targetNavLink))
 		{
 			// Path finder failed to find target nav link
 			return false;
@@ -56,7 +57,7 @@ bool SVONFindPath(SVONVolume* vol,
 		SVONPathFinder pathFinder(volume, settings);
 		auto pPoints = new std::vector<SVONPathPoint>();
 
-		ret = pathFinder.FindPath(startNavLink, targetNavLink, startPos, targetPos, *pPoints);
+		ret = pathFinder.FindPath(startNavLink, targetNavLink, startPos, targetPos, agentSize, *pPoints);
 
 		*pathHandle = reinterpret_cast<intptr_t>(pPoints);
 		*pathData = pPoints->data();

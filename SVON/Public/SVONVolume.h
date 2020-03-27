@@ -84,9 +84,10 @@ namespace SVON
 		const SVONNode& GetNode(const SVONLink& aLink) const;
 		const SVONLeafNode& GetLeafNode(nodeindex_t aIndex) const;
 
-		void GetLeafNeighbours(const SVONLink& aLink, 
+		void GetLeafNeighbours(const SVONLink& aLink, float agentSize,
 			std::vector<SVONLink>& oNeighbours) const;
-		void GetNeighbours(const SVONLink& aLink, std::vector<SVONLink>& oNeighbours) const;
+		void GetNeighbours(const SVONLink& aLink, float agentSize,
+			std::vector<SVONLink>& oNeighbours) const;
 
 		void ClearData();
 

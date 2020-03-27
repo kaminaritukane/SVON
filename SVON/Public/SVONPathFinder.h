@@ -47,6 +47,7 @@ namespace SVON
 			const SVONLink& aTarget,
 			const FloatVector& aStartPos,
 			const FloatVector& aTargetPos,
+			float agentSize,
 			std::vector<SVONPathPoint>& oPoints);
 
 	private:

@@ -451,9 +451,15 @@ const SVONLeafNode& SVONVolume::GetLeafNode(nodeindex_t aIndex) const
 	return data.leafNodes[aIndex];
 }
 
-void SVONVolume::GetLeafNeighbours(const SVONLink& aLink,
+void SVONVolume::GetLeafNeighbours(const SVONLink& aLink, float agentSize,
 	std::vector<SVONLink>& oNeighbours) const
 {
+	auto voxelSize = GetVoxelSize(0) * 0.25f;
+	if (voxelSize < agentSize)
+	{
+		return;
+	}
+
 	mortoncode_t leafIndex = aLink.GetSubnodeIndex();
 	const SVONNode& node = GetNode(aLink);
 	const SVONLeafNode& leaf = GetLeafNode(node.firstChild.GetNodeIndex());
@@ -531,15 +537,30 @@ void SVONVolume::GetLeafNeighbours(const SVONLink& aLink,
 	}
 }
 
-void SVONVolume::GetNeighbours(const SVONLink& aLink, std::vector<SVONLink>& oNeighbours) const
+void SVONVolume::GetNeighbours(const SVONLink& aLink, float agentSize, 
+	std::vector<SVONLink>& oNeighbours) const
 {
+	float voxelSize = GetVoxelSize(aLink.GetLayerIndex());
+	if (voxelSize < agentSize)
+	{
+		return;
+	}
+
 	const SVONNode& node = GetNode(aLink);
 
 	for (int i = 0; i < 6; ++i)
 	{
 		const SVONLink& neighbourLink = node.neighbours[i];
 
+		// neighbour IsValid, means it can not be used
+		// (Unlike firstChild IsValie, which mean it has geometries in it)
 		if (!neighbourLink.IsValid())
+		{
+			continue;
+		}
+
+		voxelSize = GetVoxelSize(neighbourLink.GetLayerIndex());
+		if (voxelSize < agentSize)
 		{
 			continue;
 		}
@@ -565,6 +586,13 @@ void SVONVolume::GetNeighbours(const SVONLink& aLink, std::vector<SVONLink>& oNe
 			// Pop off the top of the working set
 			SVONLink thisLink = workingSet.front();
 			workingSet.pop();
+
+			voxelSize = GetVoxelSize(thisLink.GetLayerIndex());
+			if (voxelSize < agentSize)
+			{
+				continue;
+			}
+
 			const SVONNode& thisNode = GetNode(thisLink);
 
 			// If the node has no children, it's clear, so add to neighbours and continue
@@ -577,23 +605,40 @@ void SVONVolume::GetNeighbours(const SVONLink& aLink, std::vector<SVONLink>& oNe
 			// We know it has children
 			if (thisLink.GetLayerIndex() > 0)
 			{
-				// If it's abouve layer 0, we will need to potentially add 4 children using our offests
-				for (const nodeindex_t& childIndex : SVONStatics::dirChildOffsets[i])
-				{
-					// Each of the childnodes
-					SVONLink childLink = thisNode.firstChild;
-					childLink.nodeIndex += childIndex;
-					const SVONNode& childNode = GetNode(childLink);
+				// If it's above layer 0, we will need to potentially add 4 children using our offests
 
-					if (childNode.HasChildren())
+				voxelSize = GetVoxelSize(thisNode.firstChild.GetLayerIndex());
+				if (voxelSize < agentSize)
+				{
+					// children node is smaller than the agent, then we say, this neibhbour is blocked
+					continue;
+				}
+				else
+				{
+					for (const nodeindex_t& childIndex : SVONStatics::dirChildOffsets[i])
 					{
-						// If it has children, add them tho the working set to keep going donw
-						workingSet.push(childLink);
-					}
-					else
-					{
-						// Or just add to the outgong links
-						oNeighbours.push_back(childLink);
+						// Each of the childnodes
+						SVONLink childLink = thisNode.firstChild;
+						childLink.nodeIndex += childIndex;
+
+						voxelSize = GetVoxelSize(childLink.GetLayerIndex());
+						if (voxelSize < agentSize)
+						{
+							continue;
+						}
+
+						const SVONNode& childNode = GetNode(childLink);
+
+						if (childNode.HasChildren())
+						{
+							// If it has children, add them tho the working set to keep going donw
+							workingSet.push(childLink);
+						}
+						else
+						{
+							// Or just add to the outgong links
+							oNeighbours.push_back(childLink);
+						}
 					}
 				}
 			}
@@ -601,6 +646,13 @@ void SVONVolume::GetNeighbours(const SVONLink& aLink, std::vector<SVONLink>& oNe
 			{
 				// If this is a leaf layer, then we need to add whicherver 
 				// of the 16 facing leaf nodes aren't blocked
+				voxelSize = GetVoxelSize(0) * 0.25f;
+				if (voxelSize < agentSize)
+				{
+					// TODO: check whether agent can pass through the 4x4x4 voxels
+					continue;
+				}
+
 				for (const nodeindex_t& leafIndex : SVONStatics::dirLeafChildOffsets[i])
 				{
 					// Each of the childnodes

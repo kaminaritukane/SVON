@@ -27,6 +27,7 @@ extern "C"
 	SVON_API bool SVONFindPath(SVONVolume* vol,
 		const FloatVector& startPos,
 		const FloatVector& targetPos,
+		float agentSize,
 		intptr_t* pathHandle,
 		SVONPathPoint** pathData,
 		int* count);

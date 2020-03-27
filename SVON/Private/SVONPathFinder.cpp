@@ -8,6 +8,7 @@ using namespace SVON;
 
 bool SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget,
 	const FloatVector& aStartPos, const FloatVector& aTargetPos, 
+	float agentSize,
 	std::vector<SVONPathPoint>& oPoints)
 {
 	openList.clear();
@@ -63,11 +64,11 @@ bool SVONPathFinder::FindPath(const SVONLink& aStart, const SVONLink& aTarget,
 		std::vector<SVONLink> neighbours;
 		if (current.GetLayerIndex() == 0 && currentNode.firstChild.IsValid())
 		{
-			volume.GetLeafNeighbours(current, neighbours);
+			volume.GetLeafNeighbours(current, agentSize, neighbours);
 		}
 		else
 		{
-			volume.GetNeighbours(current, neighbours);
+			volume.GetNeighbours(current, agentSize, neighbours);
 		}
 
 		for (const SVONLink& neighbour : neighbours)
