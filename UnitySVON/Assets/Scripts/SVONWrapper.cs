@@ -11,6 +11,7 @@ public class SVONWrapper
     public struct PathPoint
     {
         public int layer;
+        public UInt64 mortonCode;
         public Vector3 position;
 
         public override string ToString()
@@ -19,10 +20,12 @@ public class SVONWrapper
         }
     }
 
-    public struct BlockedBox
+    public struct VoxelBoxInfo
     {
-        public int layer;
+        public short layer;
+        public bool blocked; 
         public float extent;
+        public UInt64 mortonCode;
         public Vector3 boxCenter;
     }
 
@@ -74,7 +77,7 @@ public class SVONWrapper
         return oPath;
     }
 
-    public List<BlockedBox> GetVolumeBlockedBoxes()
+    public List<VoxelBoxInfo> GetVolumeBlockedBoxes()
     {
         if (volumeHandle == IntPtr.Zero)
         {
@@ -82,27 +85,29 @@ public class SVONWrapper
             return null;
         }
 
-        List<BlockedBox> boxList = new List<BlockedBox>();
+        List<VoxelBoxInfo> boxList = new List<VoxelBoxInfo>();
         DoGetBlockedBoxes(ref boxList);
 
         return boxList;
     }
 
-    private unsafe void DoGetBlockedBoxes(ref List<BlockedBox> boxList)
+    private unsafe void DoGetBlockedBoxes(ref List<VoxelBoxInfo> boxList)
     {
-        SVONBlockedBox* blockedBoxes = null;
+        SVONVoxelBox* blockedBoxes = null;
         int boxCount = 0;
-        using (GenerateGetBlockedBoxesWrapper(volumeHandle, out blockedBoxes, out boxCount))
+        using (GenerateGetVolumeVoxelBoxesWrapper(volumeHandle, out blockedBoxes, out boxCount))
         {
             if (boxCount > 0)
             {
-                SVONBlockedBox* pBox = blockedBoxes;
+                SVONVoxelBox* pBox = blockedBoxes;
                 for (int i = 0; i < boxCount; ++i)
                 {
-                    BlockedBox box = new BlockedBox
+                    VoxelBoxInfo box = new VoxelBoxInfo
                     {
                         layer = pBox->layer,
+                        blocked = pBox->blocked,
                         extent = pBox->extent,
+                        mortonCode = pBox->mortonCode,
                         boxCenter = pBox->boxCenter.ToVector3()
                     };
                     boxList.Add(box);
@@ -131,6 +136,7 @@ public class SVONWrapper
                 PathPoint ppt = new PathPoint
                 {
                     layer = pPoint->layer,
+                    mortonCode = pPoint->mortonCode,
                     position = pPoint->position.ToVector3()
                 };
                 oPath.Add(ppt);
@@ -197,18 +203,21 @@ public class SVONWrapper
     {
         public FloatVector position;
         public int layer;
+        public UInt64 mortonCode;
 
         public override string ToString()
         {
-            return $"Layer:{layer}, Pos:{position}";
+            return $"Layer:{layer}, Code:{mortonCode}, Pos:{position}";
         }
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct SVONBlockedBox
+    private struct SVONVoxelBox
     {
-        public int layer;
+        public short layer;
+        public bool blocked;
         public float extent;
+        public UInt64 mortonCode;
         public FloatVector boxCenter;
     }
 
@@ -248,9 +257,9 @@ public class SVONWrapper
     private static unsafe extern bool ReleasePathHandle(IntPtr pathHandle);
 
     [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
-    private static unsafe extern bool SVONGetVolumeBlockedBoxes(IntPtr volume,
+    private static unsafe extern bool SVONGetVolumeVoxelBoxes(IntPtr volume,
         out BlockedBoxesSafeHandle boxesHandle,
-        out SVONBlockedBox* oBoxes,
+        out SVONVoxelBox* oBoxes,
         out int count);
 
     [DllImport("SVON", CallingConvention = CallingConvention.Cdecl)]
@@ -304,12 +313,12 @@ public class SVONWrapper
         return itemsHandle;
     }
 
-    private static unsafe BlockedBoxesSafeHandle GenerateGetBlockedBoxesWrapper(IntPtr volume,
-        out SVONBlockedBox* oBoxes,
+    private static unsafe BlockedBoxesSafeHandle GenerateGetVolumeVoxelBoxesWrapper(IntPtr volume,
+        out SVONVoxelBox* oBoxes,
         out int count)
     {
         BlockedBoxesSafeHandle itemsSafeHandle;
-        if ( !SVONGetVolumeBlockedBoxes(volume, out itemsSafeHandle, out oBoxes, out count) )
+        if ( !SVONGetVolumeVoxelBoxes(volume, out itemsSafeHandle, out oBoxes, out count) )
         {
             Debug.Log($"Get Blocked Boxes failed!");
         }

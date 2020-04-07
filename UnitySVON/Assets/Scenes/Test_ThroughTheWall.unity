@@ -777,7 +777,7 @@ MonoBehaviour:
   boxOverlapFlags:
     serializedVersion: 2
     m_Bits: 4294967295
-  showBlockedVoxels: 0
+  showBlockedVoxels: 1
 --- !u!1 &1479397079
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,15 +16,18 @@ namespace SVON
 	{
 		FloatVector position; // Potisoin of the point
 		int layer; // Layer that the point came from (so we can infer it's volume)
+		uint64_t code;
 
 		SVONPathPoint()
 			: position(FloatVector())
 			, layer(-1)
+			, code(0)
 		{}
 
-		SVONPathPoint(const FloatVector& aPositoion, int aLayer)
+		SVONPathPoint(const FloatVector& aPositoion, int aLayer, uint64_t aCode)
 			: position(aPositoion)
 			, layer(aLayer)
+			, code(aCode)
 		{
 		}
 	};

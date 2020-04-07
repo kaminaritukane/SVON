@@ -10,9 +10,11 @@ extern "C"
 {
 	struct SVONNavigationPath;
 
-	struct SVONBlockedBox {
-		int layer = 0;
+	struct SVONVoxelBox {
+		short layer = 0;
+		bool blocked = false;
 		float extent = 0.0f;
+		mortoncode_t mortonCode = 0;
 		FloatVector boxCenter;
 	};
 
@@ -34,9 +36,9 @@ extern "C"
 
 	SVON_API bool ReleasePathHandle(intptr_t pathHandle);
 
-	SVON_API bool SVONGetVolumeBlockedBoxes(SVONVolume* vol,
+	SVON_API bool SVONGetVolumeVoxelBoxes(SVONVolume* vol,
 		intptr_t* boxesHandle,
-		SVONBlockedBox** oBoxes,
+		SVONVoxelBox** oBoxes,
 		int* count);
 
 	SVON_API bool ReleaseBoxesHandle(intptr_t boxesHandle);

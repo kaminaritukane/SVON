@@ -656,7 +656,7 @@ void SVONVolume::GetNeighbours(const SVONLink& aLink, float agentSize,
 				for (const nodeindex_t& leafIndex : SVONStatics::dirLeafChildOffsets[i])
 				{
 					// Each of the childnodes
-					SVONLink link = neighbour.firstChild;
+					SVONLink link = thisNode.firstChild;
 					const SVONLeafNode& leafNode = GetLeafNode(link.nodeIndex);
 					link.subnodeIndex = leafIndex;
 
@@ -677,21 +677,24 @@ void SVONVolume::ClearData()
 	numBytes = 0;
 }
 
-void SVONVolume::GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const
+void SVONVolume::GetVolumeBlockedBoxes(VecVolumeBoxes& oBoxes) const
 {
 	float voxelSizeLayer0 = GetVoxelSize(0);
 
-	// Set extent of each layers
-	auto leafBoxes = SVONBlockedBoxes();
+	//>> Set extent of each layers
+	// subnode layer
+	auto leafBoxes = SVONVolumeBoxes();
 	leafBoxes.extent = voxelSizeLayer0 * 0.25f * 0.5f;
 	oBoxes.push_back(leafBoxes);
 
+	// layer 0 and upper
 	for (int i = 0; i < numLayers; ++i)
 	{
-		auto boxes = SVONBlockedBoxes();
+		auto boxes = SVONVolumeBoxes();
 		boxes.extent = GetVoxelSize(i) * 0.5f;
 		oBoxes.push_back(boxes);
 	}
+	//<<
 
 	// layer 0 is special
 	const auto& layerNodes = GetLayer(0);
@@ -699,20 +702,32 @@ void SVONVolume::GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const
 	{
 		if (!node.HasChildren())
 		{
+			VoxelInfo vbInfo;
+			vbInfo.blocked = false;
+			vbInfo.code = node.code;
+			GetNodePosition(0, node.code, vbInfo.center);
+			auto& boxes = oBoxes[1];// layer 0 is at index 1
+			boxes.boxCenters.push_back(vbInfo);
 			continue;
 		}
 
 		if (IsAllMembersBlocked(0, node))
 		{
-			FloatVector nodePosition;
-			GetNodePosition(0, node.code, nodePosition);
+			VoxelInfo vbInfo;
+			vbInfo.blocked = true;
+			vbInfo.code = node.code;
+			GetNodePosition(0, node.code, vbInfo.center);
 			auto& boxes = oBoxes[1];// layer 0 is at index 1
-			boxes.boxCenters.push_back(nodePosition);
+			boxes.boxCenters.push_back(vbInfo);
 		}
 		else // part of the leafnode is blocked, we need to check deeper into the subnodes layer
 		{
-			FloatVector oPosition;
-			GetNodePosition(0, node.code, oPosition);
+			VoxelInfo vbInfo;
+			vbInfo.blocked = false;
+			vbInfo.code = node.code;
+			GetNodePosition(0, node.code, vbInfo.center);
+			auto& boxes = oBoxes[1];// layer 0 is at index 1
+			boxes.boxCenters.push_back(vbInfo);
 
 			float subnodeVoxelSize = voxelSizeLayer0 * 0.25f;
 			auto subnodePosOffset = FloatVector(voxelSizeLayer0 * 0.375f);// Ray Comment: = -voxelSizeLayer0 / 2.0f + voxelSizeLayer0 / 8.0f
@@ -726,13 +741,18 @@ void SVONVolume::GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const
 					uint_fast32_t x, y, z;
 					morton3D_64_decode(i, x, y, z);
 
-					auto subnodePos = oPosition + FloatVector(x * subnodeVoxelSize,
+					auto subnodePos = vbInfo.center + FloatVector(x * subnodeVoxelSize,
 						y * subnodeVoxelSize,
 						z * subnodeVoxelSize)
 						- subnodePosOffset;
 
+					VoxelInfo subnodeVbInfo;
+					subnodeVbInfo.blocked = true;
+					subnodeVbInfo.code = i;
+					subnodeVbInfo.center = subnodePos;
+
 					auto& boxes = oBoxes[0];// subnode layer is at index 0
-					boxes.boxCenters.push_back(subnodePos);
+					boxes.boxCenters.push_back(subnodeVbInfo);
 				}
 			}
 		}
@@ -747,12 +767,12 @@ void SVONVolume::GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const
 		const auto& layerNodes = GetLayer(layer);
 		for (const auto& node : layerNodes)
 		{
-			if (IsAllMembersBlocked(layer, node))
-			{
-				FloatVector nodePosition;
-				GetNodePosition(layer, node.code, nodePosition);
-				boxes.boxCenters.push_back(nodePosition);
-			}
+			VoxelInfo vbInfo;
+			vbInfo.blocked = IsAllMembersBlocked(layer, node);
+			vbInfo.code = node.code;
+			GetNodePosition(layer, node.code, vbInfo.center);
+
+			boxes.boxCenters.push_back(vbInfo);
 		}
 	}	
 }
@@ -785,7 +805,7 @@ void SVONVolume::RasterizeLeafNode(FloatVector& aOrigin, nodeindex_t aLeafIndex)
 }
 
 // Check for blocking...using this cached set for each layer for now for fast lookups
-bool SVONVolume::IsAnyMemberBlocked(layerindex_t aLayer, mortoncode_t aCode)
+bool SVONVolume::IsAnyMemberBlocked(layerindex_t aLayer, mortoncode_t aCode) const
 {
 	if (aLayer == blockedIndices.size())
 	{

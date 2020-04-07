@@ -21,11 +21,16 @@ namespace SVON
 		float boxRadius, int32_t layers);
 
 	// from leafnode to up layers, which means, index 0 here is leafnode, index 1 is layer 0...
-	struct SVONBlockedBoxes {
-		float extent = 0.0f;
-		std::vector<FloatVector> boxCenters;
+	struct VoxelInfo {
+		FloatVector center;
+		mortoncode_t code;
+		bool blocked;
 	};
-	typedef std::vector<SVONBlockedBoxes> VolumeBlockBoxes;
+	struct SVONVolumeBoxes {
+		float extent = 0.0f;
+		std::vector<VoxelInfo> boxCenters;
+	};
+	typedef std::vector<SVONVolumeBoxes> VecVolumeBoxes;
 
 	class SVONVolume
 	{
@@ -91,7 +96,7 @@ namespace SVON
 
 		void ClearData();
 
-		void GetVolumeBlockedBoxes(VolumeBlockBoxes& oBoxes) const;
+		void GetVolumeBlockedBoxes(VecVolumeBoxes& oBoxes) const;
 
 		const SVONData& GetVolumeData() const { return data; }
 
@@ -126,7 +131,7 @@ namespace SVON
 		void RasterizeLeafNode(FloatVector& aOrigin, nodeindex_t aLeafIndex);
 
 		// Check for blocking...using this cached set for each layer for now for fast lookups
-		bool IsAnyMemberBlocked(layerindex_t aLayer, mortoncode_t aCode);
+		bool IsAnyMemberBlocked(layerindex_t aLayer, mortoncode_t aCode) const;
 		bool IsBlocked(const FloatVector& aPositon, const float aSize) const;
 		bool IsAllMembersBlocked(layerindex_t aLayer, const SVONNode& node) const;
 	};

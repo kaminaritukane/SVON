@@ -58,9 +58,9 @@ void DebugVolume(SVONVolume* pVol)
     //}
 
     intptr_t boxesHandle = 0;
-    SVONBlockedBox* oBoxes = nullptr;
+    SVONVoxelBox* oBoxes = nullptr;
     int count = 0;
-    SVONGetVolumeBlockedBoxes(pVol, &boxesHandle, &oBoxes, &count);
+    SVONGetVolumeVoxelBoxes(pVol, &boxesHandle, &oBoxes, &count);
     for (size_t i = 0; i < count; ++i)
     {
         const auto& box = oBoxes[i];

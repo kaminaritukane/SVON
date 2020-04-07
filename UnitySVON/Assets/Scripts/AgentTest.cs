@@ -77,6 +77,7 @@ public class AgentTest : MonoBehaviour
             var pt = paths[i];
             //Debug.Log($"{i}: {pt}");
             var go = GameObject.Instantiate(pathPointGO, pt.position, Quaternion.identity);
+            go.name = $"PathNode:[{pt.layer}:{pt.mortonCode}]";
             gos.Add(go);
         }
     }
