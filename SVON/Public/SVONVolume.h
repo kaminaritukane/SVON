@@ -133,6 +133,9 @@ namespace SVON
 		// Check for blocking...using this cached set for each layer for now for fast lookups
 		bool IsAnyMemberBlocked(layerindex_t aLayer, mortoncode_t aCode) const;
 		bool IsBlocked(const FloatVector& aPositon, const float aSize) const;
-		bool IsAllMembersBlocked(layerindex_t aLayer, const SVONNode& node) const;
+
+		// return 1: all members blocked, 0: not all blocked, -1: this node is ignored
+		int  CheckMembersBlocked(std::vector<std::vector<SVONNode>>& ignoreNodes,
+			layerindex_t aLayer, const SVONNode& node) const;
 	};
 }

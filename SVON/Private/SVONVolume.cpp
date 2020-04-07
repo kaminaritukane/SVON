@@ -696,10 +696,41 @@ void SVONVolume::GetVolumeBlockedBoxes(VecVolumeBoxes& oBoxes) const
 	}
 	//<<
 
+	std::vector<std::vector<SVONNode>> ignoreNodes;// do not contains subnodes layer
+	ignoreNodes.assign(numLayers, std::vector<SVONNode>());
+
+	// Check upper layers
+	for (int i = numLayers; i >= 2; --i)
+	{
+		auto& boxes = oBoxes[i];
+
+		int layer = i - 1;
+		const auto& layerNodes = GetLayer(layer);
+		for (const auto& node : layerNodes)
+		{
+			int ret = CheckMembersBlocked(ignoreNodes, layer, node);
+			if (ret != -1)
+			{
+				VoxelInfo vbInfo;
+				vbInfo.blocked = ret == 1 ? true : false;
+				vbInfo.code = node.code;
+				GetNodePosition(layer, node.code, vbInfo.center);
+
+				boxes.boxCenters.push_back(vbInfo);
+			}
+		}
+	}
+
 	// layer 0 is special
 	const auto& layerNodes = GetLayer(0);
 	for (const auto& node : layerNodes)
 	{
+		int ret = CheckMembersBlocked(ignoreNodes, 0, node);
+		if (ret == -1)
+		{
+			continue;
+		}
+
 		if (!node.HasChildren())
 		{
 			VoxelInfo vbInfo;
@@ -711,7 +742,7 @@ void SVONVolume::GetVolumeBlockedBoxes(VecVolumeBoxes& oBoxes) const
 			continue;
 		}
 
-		if (IsAllMembersBlocked(0, node))
+		if (ret == 1)
 		{
 			VoxelInfo vbInfo;
 			vbInfo.blocked = true;
@@ -755,24 +786,6 @@ void SVONVolume::GetVolumeBlockedBoxes(VecVolumeBoxes& oBoxes) const
 					boxes.boxCenters.push_back(subnodeVbInfo);
 				}
 			}
-		}
-	}
-
-	// Check upper layers
-	for (int i = 2; i <= numLayers; ++i)
-	{
-		auto& boxes = oBoxes[i];
-
-		auto layer = i - 1;
-		const auto& layerNodes = GetLayer(layer);
-		for (const auto& node : layerNodes)
-		{
-			VoxelInfo vbInfo;
-			vbInfo.blocked = IsAllMembersBlocked(layer, node);
-			vbInfo.code = node.code;
-			GetNodePosition(layer, node.code, vbInfo.center);
-
-			boxes.boxCenters.push_back(vbInfo);
 		}
 	}	
 }
@@ -832,14 +845,26 @@ bool SVONVolume::IsBlocked(const FloatVector& aPositon, const float aSize) const
 	return OverlapBoxBlockingTest(aPositon, aSize, collisionLayers);
 }
 
-bool SVONVolume::IsAllMembersBlocked(layerindex_t aLayer, const SVONNode& node) const
+// return 1: all members blocked, 0: not all blocked, -1: this node is ignored
+int SVONVolume::CheckMembersBlocked(std::vector<std::vector<SVONNode>>& ignoreNodes,
+	layerindex_t aLayer, const SVONNode& node) const
 {
 	if (!node.HasChildren())// this node is empty, can pass through
 	{
-		return false;
+		return 0;
 	}
 
-	bool bRet = true;
+	// already in ignore list
+	auto& layerIgnores = ignoreNodes[aLayer];
+	const auto it = std::find_if(layerIgnores.begin(), layerIgnores.end(), [node](const SVONNode& nd) {
+		return nd.code == node.code;
+		});
+	if ( it != layerIgnores.end())
+	{
+		return -1;
+	}
+
+	int ret = 1;
 
 	if (aLayer == 0)
 	{
@@ -847,32 +872,49 @@ bool SVONVolume::IsAllMembersBlocked(layerindex_t aLayer, const SVONNode& node) 
 		const auto& leafnode = GetLeafNode(node.firstChild.GetNodeIndex());
 		if (!leafnode.IsCompletelyBlocked())
 		{
-			bRet = false;
+			ret = 0;
 		}
 	}
 	else
 	{
 		// Check its 8 children node to see whether they're fully blocked, too
 		nodeindex_t childIndex = 0;
-		if (GetIndexForCode(aLayer, node.code << 3, childIndex))
+		int childLayer = aLayer - 1;
+		if (GetIndexForCode(childLayer, node.code << 3, childIndex))
 		{
+			auto layerNodes = GetLayer(childLayer);
+
 			int32_t childIter = 0;
 			for (int32_t iter = 0; iter < 8; ++iter)
 			{
 				childIter = childIndex + iter;
-				const auto& childNode = GetLayer(aLayer - 1)[childIter];
-				if (!IsAllMembersBlocked(aLayer - 1, childNode))
+				const auto& childNode = layerNodes[childIter];
+				if (CheckMembersBlocked(ignoreNodes, childLayer, childNode) == 0)
 				{
-					bRet = false;
+					ret = 0;
 					break;
+				}
+			}
+
+			if (ret == 1)
+			{
+				// here, all children nodes are blocked, we add them to ignore list
+				// so they will not be checked again in the lower layer
+				auto& childLayerIgnores = ignoreNodes[childLayer];
+				childIter = 0;
+				for (int32_t iter = 0; iter < 8; ++iter)
+				{
+					childIter = childIndex + iter;
+					const auto& childNode = layerNodes[childIter];
+					childLayerIgnores.push_back(childNode);
 				}
 			}
 		}
 		else
 		{
-			bRet = false;
+			ret = 0;
 		}
 	}
 
-	return bRet;
+	return ret;
 }
