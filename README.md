@@ -1,5 +1,5 @@
 # SVON
-A pure C++ implementation of Sparce Voxel Octree Navigation, based on https://github.com/midgen/uesvon.
+A pure C++ implementation of Sparce Voxel Octree Navigation
 
 Fixed some bugs I found in UESVON.
 
